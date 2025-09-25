@@ -1,0 +1,30 @@
+name: DEPLOY
+
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  deploy:
+    name: Deploy all
+    runs-on: [
+      "self-hosted",
+      "prod"
+    ]
+    env:
+      DEPLOY_ENV: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compose up
+        run: |
+          sudo docker compose up --build -d
+
+      - name: Cleanup
+        run: |
+          sudo docker system prune -a -f
