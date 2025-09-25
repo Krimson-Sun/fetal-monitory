@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  data-receiver:
+    build:
+      context: ./receiver
+      dockerfile: Dockerfile
+    # по умолчанию слушает gRPC на :50051
+
+  stream-emulator:
+    build:
+      context: ./emulator
+    environment:
+      TARGET_ADDR: data-receiver:50051
+    depends_on:
+      - data-receiver
+    volumes:
+      - ./data:/data:ro
