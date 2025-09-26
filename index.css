@@ -1,0 +1,8 @@
+.graphics{
+    width: 60%;
+    height: 40vw;
+}
+
+.graphics canvas{
+    width:100%;
+}
