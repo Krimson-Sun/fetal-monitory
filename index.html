@@ -1,18 +1,100 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="stylesheet" type="text/css" href="index.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>medical-dashboard</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-    <div class="graphics">
-      <canvas id="canvas1" width="500" height="100"></canvas>
-      <canvas id="canvas2" width="500" height="100"></canvas>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Итэлма - Предиктивная аналитика физиологических данных</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div class="dashboard">
+    <div class="header">
+      <img src="./logo-mobile-ru.svg" alt="Итэлма" style="height: 100%;"/>
+      <div class="title"> - Предиктивная аналитика физиологических данных</div>
     </div>
-  </body>
+    
+    <div class="main-content">
+      <div class="left-panel">
+        <div class="card">
+          <div class="card-header">Частота сердечных сокращений плода</div>
+          <div class="card-content">
+            <canvas id="hrChart"  width="500" height="100" style="width:100%"></canvas>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>ЧСС</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Ускорения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Децелерации</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">Маточные сокращения</div>
+          <div class="card-content">
+            <canvas id="uterineChart" width="500" height="100" style="width:100%"></canvas>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>Сокращения</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+        <div class="card">
+          <div class="card-header">Ключевые метрики</div>
+          <div class="card-content">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">STV (мс)</div>
+                <div class="metric-value" id="stv-value">7.2</div>
+                <div class="metric-status metric-status-green"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">LTV (мс)</div>
+                <div class="metric-value" id="ltv-value">12.5</div>
+                <div class="metric-status metric-status-green"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Поздние децелерации</div>
+                <div class="metric-value" id="late-decel-value">0%</div>
+                <div class="metric-status metric-status-green"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Ускорения за 10 мин</div>
+                <div class="metric-value" id="accelerations-value">4</div>
+                <div class="metric-status metric-status-green"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <div>Краткосрочный прогноз (15-60 минут)</div>
+            <div class="forecast-value forecast-green" id="forecast-value">0%</div>
+          </div>
+          <div class="card-content">
+            <div class="forecast-recommendation">Наблюдение</div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Норма</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #FFC107;"></div>Повышенный риск</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Экстренное вмешательство</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">Динамика показателей</div>
+          <div class="card-content">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="status-indicator">
+        <div class="status-badge status-green" id="status-badge">Все в порядке</div>
+      </div>
+
+  <script src="src/script.js" defer type="module"></script>
+</body>
 </html>
