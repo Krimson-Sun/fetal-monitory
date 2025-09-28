@@ -289,7 +289,7 @@ body {
   width: 65px;
   height: 65px;
   background-color: var(--red);
-  bottom: 30px;
+  bottom: 37.5px;
   right: 120px;
 }
 
@@ -299,6 +299,29 @@ body {
 }
 
 .ctg-recording-button.reset.hidden{
+  width: 65px;
+  height: 65px;
+  bottom: 30px;
+  right: 30px;
+  opacity: 0%;
+  cursor:auto;
+  pointer-events: none;
+}
+
+.ctg-recording-button.input {
+  width: 65px;
+  height: 65px;
+  background-color: var(--blue);
+  bottom: 120px;
+  right: 37.5px;
+}
+
+.ctg-recording-button.input:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(244, 67, 54, 0.3);
+}
+
+.ctg-recording-button.input.hidden{
   width: 65px;
   height: 65px;
   bottom: 30px;
