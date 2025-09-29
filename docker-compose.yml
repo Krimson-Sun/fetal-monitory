@@ -16,9 +16,10 @@ services:
 
   stream-emulator:
     build:
-      context: ./emulator
+      context: .
+      dockerfile: ./emulator/Dockerfile
     environment:
-      TARGET_ADDR: data-receiver:50051
+      - TARGET_ADDR=data-receiver:50051
     depends_on:
       - data-receiver
     volumes:

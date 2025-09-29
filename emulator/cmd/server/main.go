@@ -13,8 +13,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"new-fetal-emulator/internal/grpcserver"
-	telemetryv1 "new-fetal-emulator/proto/v1"
+	"github.com/Krimson/fetal-monitory/emulator/internal/grpcserver"
+	telemetryv1 "github.com/Krimson/fetal-monitory/proto/telemetry"
 )
 
 func main() {

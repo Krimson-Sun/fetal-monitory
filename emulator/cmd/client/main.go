@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"new-fetal-emulator/internal/csvreader"
-	"new-fetal-emulator/internal/grpcclient"
+	"github.com/Krimson/fetal-monitory/emulator/internal/csvreader"
+	"github.com/Krimson/fetal-monitory/emulator/internal/grpcclient"
 
-	telemetryv1 "new-fetal-emulator/proto/v1"
+	telemetryv1 "github.com/Krimson/fetal-monitory/proto/telemetry"
 )
 
 func main() {

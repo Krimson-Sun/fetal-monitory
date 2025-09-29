@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	telemetryv1 "new-fetal-emulator/proto/v1"
+	telemetryv1 "github.com/Krimson/fetal-monitory/proto/telemetry"
 )
 
 type GRPCClient struct {

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	telemetryv1 "new-fetal-emulator/proto/v1"
+	telemetryv1 "github.com/Krimson/fetal-monitory/proto/telemetry"
 )
 
 type Server struct {
