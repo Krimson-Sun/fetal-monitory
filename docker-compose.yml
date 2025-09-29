@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  data-receiver:
+    build:
+      context: . 
+      dockerfile: ./receiver/Dockerfile
+    ports:
+      - "50051:50051"  
+    environment:
+      - GRPC_PORT=50051
+      - BATCH_MAX_SAMPLES=250
+      - BATCH_MAX_SPAN_MS=30000
+      - FLUSH_INTERVAL_MS=500
+      - ACK_EVERY_N=50
+
+  stream-emulator:
+    build:
+      context: .
+      dockerfile: ./emulator/Dockerfile
+    environment:
+      - TARGET_ADDR=data-receiver:50051
+    depends_on:
+      - data-receiver
+    volumes:
+      - ./data:/data:ro
