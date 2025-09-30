@@ -22,7 +22,7 @@ class Preprocessor:
     - Работает в режиме реального времени с низкими требованиями к вычислительным ресурсам
     """
 
-    def filter_physiological_signals(self, bpm_data: pd.DataFrame, uterus_data: pd.DataFrame, fs_estimated: float = 4.0) -> Tuple[pd.DataFrame, pd.DataFrame, float, float]:
+    def filter_physiological_signals(self, bpm_data: pd.DataFrame, uterus_data: pd.DataFrame, fs_estimated: float = 4.0) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Высокопроизводительная фильтрация сигналов ЧСС и маточных сокращений.
 
@@ -41,10 +41,6 @@ class Preprocessor:
             Отфильтрованный сигнал ЧСС с теми же колонками.
         filtered_uterus : pd.DataFrame
             Отфильтрованный сигнал маточных сокращений с теми же колонками.
-        fs_bpm : float
-            Частота дискретизации сигнала ЧСС
-        fs_uterus : float
-            Частота дискретизации сигнала маточных сокращений
 
         Notes
         -----
@@ -56,22 +52,11 @@ class Preprocessor:
         """
         # Проверка на пустые данные
         if bpm_data.empty or uterus_data.empty:
-            return (bpm_data.copy(), uterus_data.copy(), 0.0, 0.0)
+            return (bpm_data.copy(), uterus_data.copy())
         
         # Сортировка и удаление дубликатов
         bpm_data = bpm_data.sort_values('time_sec').drop_duplicates('time_sec').reset_index(drop=True)
         uterus_data = uterus_data.sort_values('time_sec').drop_duplicates('time_sec').reset_index(drop=True)
-        
-        # Определение частоты дискретизации (быстрый и устойчивый метод)
-        def estimate_fs(data):
-            if len(data) < 10:
-                return fs_estimated
-            # Используем медиану первых 10 интервалов (устойчиво к выбросам)
-            time_diffs = np.diff(data['time_sec'].iloc[:10])
-            return 1.0 / np.median(time_diffs[time_diffs > 0]+1e-18) if len(time_diffs) > 0 else fs_estimated
-        
-        fs_bpm = estimate_fs(bpm_data)
-        fs_uterus = estimate_fs(uterus_data)
         
         # Универсальная функция фильтрации
         def filter_signal(values, fs, med_window_sec, cutoff_freq, order, threshold_diff = 1e10, threshold_del = 0.1, threshold_val=0.3):
@@ -107,14 +92,16 @@ class Preprocessor:
                     values = sosfiltfilt(sos, values)
                 except ValueError:
                     pass
-                
+            
             return values
         
         # Оптимальные параметры для ЧСС (сохраняет клинически значимые паттерны)
-        filtered_bpm = bpm_data.copy()
+        filtered_bpm = pd.DataFrame(columns=bpm_data.columns)
+        filtered_bpm['time_sec'] = np.arange(bpm_data['time_sec'].min(), bpm_data['time_sec'].max(), 1/fs_estimated)
+        filtered_bpm['value'] = np.interp(filtered_bpm['time_sec'], bpm_data['time_sec'].values, bpm_data['value'].values)
         filtered_bpm['value'] = filter_signal(
-            bpm_data['value'].values,
-            fs_bpm,
+            filtered_bpm['value'].values,
+            fs_estimated,
             med_window_sec=3,  # Для удаления импульсных шумов (1.5 сек)
             cutoff_freq=0.05,     # Сохраняет ускорения и децелерации
             order=3,
@@ -122,16 +109,19 @@ class Preprocessor:
         )
         
         # Оптимальные параметры для маточных сокращений
-        filtered_uterus = uterus_data.copy()
+        filtered_uterus = pd.DataFrame(columns=uterus_data.columns)
+        filtered_uterus['time_sec'] = np.arange(uterus_data['time_sec'].min(), uterus_data['time_sec'].max(), 1/fs_estimated)
+        filtered_uterus['value'] = np.interp(filtered_uterus['time_sec'], uterus_data['time_sec'].values, uterus_data['value'].values)
         filtered_uterus['value'] = filter_signal(
-            uterus_data['value'].values,
-            fs_uterus,
+            filtered_uterus['value'].values,
+            fs_estimated,
             med_window_sec=3,   # Более широкое окно для медленных сигналов
             cutoff_freq=0.01,     # Только очень низкие частоты (0.01 Гц)
             order=4
         )
         
-        return (filtered_bpm, filtered_uterus, fs_bpm, fs_uterus)
+        return (filtered_bpm, filtered_uterus)
+
 
 
     def compute_metrics(self, bpm_data: pd.DataFrame, uterus_data: pd.DataFrame, fs_bpm: float = 4.0, fs_uc: float = 4.0, summarize=False) -> Dict:
