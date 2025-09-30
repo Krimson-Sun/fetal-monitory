@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package filter;
+option go_package = "./pb";
+
+import "common.proto";
+
+service FilterService {
+  rpc FilterData(FilterRequest) returns (FilterResponse);
+}
+
+message FilterRequest {
+  common.MedicalData medical_data = 1;
+  string session_id = 2;
+}
+
+message FilterResponse {
+  common.MedicalData filtered_data = 1;
+  string session_id = 2;
+  string status = 3;
+  string message = 4;
+}

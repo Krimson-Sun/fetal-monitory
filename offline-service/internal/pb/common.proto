@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package common;
+option go_package = "./pb";
+
+// Представление временного ряда метрики
+message TimeSeries {
+  repeated double time_sec = 1;  // Время в секундах
+  repeated double value = 2;     // Значения метрики
+}
+
+// Медицинские данные в новом формате
+message MedicalData {
+  TimeSeries bpm = 1;    // Сердцебиение (FHR)
+  TimeSeries uterus = 2; // Сокращения матки (UC)
+}
