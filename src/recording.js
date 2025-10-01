@@ -5,7 +5,8 @@ let wasSaved = false;
 export function startRecording(){
     resetCharts();
     wasSaved = false;
-    let interval = setInterval(updateData, 100);
+    const initDate = Date.now()
+    let interval = setInterval(()=>{updateData(initDate)}, 100);
     console.log('click!');
     setStopBtn(interval)
     hideBtn('input-btn', 'ctg-recording-button input')

@@ -7,9 +7,7 @@ Chart.register(zoomPlugin);
 let hrChart;
 let uterineChart;
 
-
 export function resetCharts(){
-      let initDate = Date.now();
       if (hrChart) hrChart.destroy();
       if (uterineChart) uterineChart.destroy();
       
@@ -67,18 +65,37 @@ export function resetCharts(){
             tooltip: {
               enabled: false
             },
-            zoom:{
-              pan:{
-                enabled: true,
-                mode: 'x'
-              },
-              zoom: {
-                wheel: { enabled: true },
-                pinch: { enabled: true },
-                mode: 'x',
-                limits:{x:{min:0, max:100}}
+            zoom: {
+                pan: {
+                  onPan({ chart }) {
+                    uterineChart.zoomScale(
+                      'x',
+                      { min: Math.trunc(chart.scales.x.min), max: Math.trunc(chart.scales.x.max) },
+                      'none'
+                    );
+                  },
+                  enabled: true,
+                  mode: 'x',
+                },
+                zoom: {
+                  mode: 'x',
+                  onZoom: ({ chart }) => {
+                    const xScale = chart.options.scales.x;
+                    uterineChart.options.scales.x.min = xScale.min;
+                    uterineChart.options.scales.x.max = xScale.max;
+                    uterineChart.update();
+                  },
+                  drag: {
+                    enabled: false
+                  },
+                  pinch: {
+                    enabled: true
+                  },
+                  wheel: {
+                    enabled: true
+                  }
+                }
               }
-            }
           },
           scales: {
             x: {
@@ -93,8 +110,7 @@ export function resetCharts(){
                   size: 12
                 },
                 callback: function(value) {
-                  const date = new Date(value - initDate);
-                  return `${date.getMinutes()}:${String(date.getSeconds()).padStart(2, '0')}`;
+                  return `${Math.floor(value / 60000)}:${String(Math.floor(value / 1000) % 60).padStart(2,'0')}`;
                 }
               }
             },
@@ -157,6 +173,30 @@ export function resetCharts(){
             },
             tooltip: {
               enabled: false
+            },
+            zoom:{
+              pan: {
+                onPan({ chart }) {
+                  hrChart.zoomScale(
+                    'x',
+                    { min: Math.trunc(chart.scales.x.min), max: Math.trunc(chart.scales.x.max) },
+                    'none'
+                  );
+                },
+                enabled: true,
+                mode: 'x'
+              },
+              zoom: {
+                wheel: { enabled: true },
+                pinch: { enabled: true },
+                mode: 'x',
+                onZoom: ({ chart }) => {
+                  const xScale = chart.options.scales.x;
+                  hrChart.options.scales.x.min = xScale.min;
+                  hrChart.options.scales.x.max = xScale.max;
+                  hrChart.update();
+                }
+              }
             }
           },
           scales: {
@@ -172,8 +212,7 @@ export function resetCharts(){
                   size: 12
                 },
                 callback: function(value) {
-                  const date = new Date(value - initDate);
-                  return `${date.getMinutes()}:${String(date.getSeconds()).padStart(2, '0')}`;
+                  return `${Math.floor(value / 60000)}:${String(Math.floor(value / 1000) % 60).padStart(2,'0')}`;
                 }
               }
             },
@@ -206,9 +245,10 @@ export function resetCharts(){
         }
       });
 }
-  
-export function updateData() {
-    const now = Date.now();
+
+export function updateData(initDate) {
+    const now = Date.now() - initDate;
+    console.log(now)
 
     // Обновление ЧСС
     const hrValue = 130 + Math.random() * 20;
