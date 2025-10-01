@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Итэлма - Предиктивная аналитика физиологических данных</title>
   <link rel="stylesheet" href="src/styles.css">
+  <link rel="stylesheet" href="src/inputFormStyle.css">
 </head>
 <body>
   <div class="dashboard">
@@ -129,6 +130,44 @@
       </svg>
     </span>
   </button>
+
+    <div class="file-import-alert" id="file-import-alert" style="display: none;">
+      <div class="alert-content">
+        <div class="alert-header">
+          <h3>Импорт данных КТГ</h3>
+          <button class="close-button" id="close-import-alert">&times;</button>
+      </div>
+      <div class="alert-body">
+        <div class="file-input-group">
+        <div class="upload-section" id="bpmSection">
+          <h4  style="text-align: center;">Данные ЧСС плода (BPM)</h4>
+          <input type="file" id="bpmFileInput" accept=".csv" style="display: none;">
+          <button onclick="document.getElementById('bpmFileInput').click()">Выбрать файл (.csv)</button>
+          <div id="bpmFileInfo" class="file-info" style="display: none;"></div>
+          <div class="requirements">
+              Формат: две колонки (time_sec, value)<br>
+              Пример: <br>time_sec, value<br>0.0, 140.0<br>60.0, 138.0<br>120.0, 142.0
+          </div>
+        </div>
+
+        <div class="upload-section" id="ucSection">
+            <h4 style="text-align: center;">Данные маточных сокращений (%)</h4>
+            <input type="file" id="ucFileInput" accept=".csv" style="display: none;">
+            <button onclick="document.getElementById('ucFileInput').click()">Выбрать файл (.csv)</button>
+            <div id="ucFileInfo" class="file-info" style="display: none;"></div>
+            <div class="requirements">
+                Формат: две колонки (time_sec, value)<br>
+                Пример: <br>time_sec, value<br>0.0, 15.0<br>60.0, 18.0<br>120.0, 12.0
+            </div>
+        </div>
+        </div>
+        <div class="alert-footer">
+            <button id="sendButton" disabled>
+                <span class="text">Обработать данные</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="src/script.js" defer type="module"></script>
 </body>

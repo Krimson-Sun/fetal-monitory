@@ -1,7 +1,12 @@
 import { Chart } from "chart.js/auto";
+import zoomPlugin from 'chartjs-plugin-zoom';
+
+// Регистрируем плагин
+Chart.register(zoomPlugin);
 
 let hrChart;
 let uterineChart;
+
 
 export function resetCharts(){
       let initDate = Date.now();
@@ -61,6 +66,18 @@ export function resetCharts(){
             },
             tooltip: {
               enabled: false
+            },
+            zoom:{
+              pan:{
+                enabled: true,
+                mode: 'x'
+              },
+              zoom: {
+                wheel: { enabled: true },
+                pinch: { enabled: true },
+                mode: 'x',
+                limits:{x:{min:0, max:100}}
+              }
             }
           },
           scales: {

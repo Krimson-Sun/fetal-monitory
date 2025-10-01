@@ -2,6 +2,7 @@ import '@fontsource/montserrat/400.css';
 import '@fontsource/montserrat/700.css';
 import { resetRecording, startRecording } from "./recording";
 import { resetCharts, updateData } from './dataProcess';
+import {setInputAlertEventListeners} from './inputForm'
 
 
 // Инициализация графиков
@@ -125,4 +126,5 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('reset-btn').onclick = resetRecording
   // Инициализация начальных данных
   updateData();
+  setInputAlertEventListeners()
 });
