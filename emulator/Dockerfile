@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 RUN apk add --no-cache git ca-certificates
 
@@ -31,4 +31,7 @@ USER root
 RUN mkdir -p /data && chown emulator:emulator /data
 USER emulator
 
-CMD sh -c "./client -server=$TARGET_ADDR -fhr=/data/fhr.csv -uc=/data/uc.csv"
+ENV TARGET_ADDR="data-receiver:50051"
+ENV SESSION_ID=""
+
+CMD sh -c "./client -server=$TARGET_ADDR -session=$SESSION_ID -fhr=/data/fhr.csv -uc=/data/uc.csv"

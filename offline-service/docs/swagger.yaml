@@ -1,0 +1,258 @@
+basePath: /
+definitions:
+  models.Acceleration:
+    properties:
+      amplitude:
+        type: number
+      duration:
+        type: number
+      end:
+        type: number
+      start:
+        type: number
+    type: object
+  models.CTGAnalysis:
+    properties:
+      accel_decel_ratio:
+        type: number
+      accelerations:
+        items:
+          $ref: '#/definitions/models.Acceleration'
+        type: array
+      baseline_heart_rate:
+        type: number
+      bpm_trend:
+        type: number
+      contractions:
+        items:
+          $ref: '#/definitions/models.Contraction'
+        type: array
+      data_points:
+        type: integer
+      decelerations:
+        items:
+          $ref: '#/definitions/models.Deceleration'
+        type: array
+      filtered_bpm_batch:
+        $ref: '#/definitions/models.MetricRecord'
+      filtered_uterus_batch:
+        $ref: '#/definitions/models.MetricRecord'
+      late_deceleration_ratio:
+        type: number
+      late_decelerations:
+        type: integer
+      ltv:
+        type: number
+      ltvs:
+        items:
+          type: number
+        type: array
+      ltvs_window_duration:
+        type: number
+      stv:
+        type: number
+      stv_trend:
+        type: number
+      stvs:
+        items:
+          type: number
+        type: array
+      stvs_window_duration:
+        type: number
+      time_span_sec:
+        type: number
+      total_accelerations:
+        type: integer
+      total_contractions:
+        type: integer
+      total_decelerations:
+        type: integer
+    type: object
+  models.Contraction:
+    properties:
+      amplitude:
+        type: number
+      duration:
+        type: number
+      end:
+        type: number
+      start:
+        type: number
+    type: object
+  models.Deceleration:
+    properties:
+      amplitude:
+        type: number
+      duration:
+        type: number
+      end:
+        type: number
+      is_late:
+        type: boolean
+      start:
+        type: number
+    type: object
+  models.DecisionResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  models.MetricRecord:
+    properties:
+      time_sec:
+        items:
+          type: number
+        type: array
+      value:
+        items:
+          type: number
+        type: array
+    type: object
+  models.SaveDecision:
+    properties:
+      save:
+        type: boolean
+      session_id:
+        type: string
+    type: object
+  models.UploadResponse:
+    properties:
+      message:
+        type: string
+      prediction:
+        type: number
+      records:
+        $ref: '#/definitions/models.CTGAnalysis'
+      session_id:
+        type: string
+      status:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: support@fetalmonitory.com
+    name: API Support
+  description: |
+    API для загрузки и анализа CSV файлов с медицинскими данными (FHR и UC)
+
+    ## Описание
+    Этот сервис обрабатывает CSV файлы с данными о сердцебиении плода (BPM) и маточными сокращениями (UC).
+    Выполняет фильтрацию, анализ признаков и ML предсказание.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Offline Medical Service API
+  version: "1.0"
+paths:
+  /decision:
+    post:
+      consumes:
+      - application/json
+      description: Сохраняет или отклоняет сохранение данных сессии в базу данных
+      parameters:
+      - description: Решение о сохранении
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SaveDecision'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результат операции
+          schema:
+            $ref: '#/definitions/models.DecisionResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка обработки
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Принять решение о сохранении
+      tags:
+      - Offline Analysis
+  /session:
+    get:
+      description: Возвращает информацию о сессии (пока заглушка, нужно использовать
+        /upload для получения данных)
+      parameters:
+      - description: ID сессии
+        in: query
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о сессии
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить данные сессии
+      tags:
+      - Offline Analysis
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает два CSV файла (BPM и UC), выполняет фильтрацию, извлечение
+        признаков и ML предсказание
+      parameters:
+      - description: CSV файл с данными FHR (сердцебиение плода)
+        in: formData
+        name: bpm_file
+        required: true
+        type: file
+      - description: CSV файл с данными UC (маточные сокращения)
+        in: formData
+        name: uc_file
+        required: true
+        type: file
+      - description: ID сессии (генерируется автоматически если не указан)
+        in: formData
+        name: session_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результат анализа
+          schema:
+            $ref: '#/definitions/models.UploadResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка обработки
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Загрузить CSV файлы для анализа
+      tags:
+      - Offline Analysis
+schemes:
+- http
+swagger: "2.0"

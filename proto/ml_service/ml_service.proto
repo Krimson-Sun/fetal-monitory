@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package ml_service.v1;
+option go_package = "./;mlservicev1";
+
+// Сервис для ML инференса (предсказание состояния плода)
+service MLService {
+  // Отправляет признаки для инференса и получает предсказание
+  rpc PredictFromFeatures(PredictRequest) returns (PredictResponse);
+  
+  // Сброс состояния коллектора (начало новой сессии)
+  rpc ResetCollector(ResetCollectorRequest) returns (ResetCollectorResponse);
+}
+
+// Запрос на предсказание
+message PredictRequest {
+  string session_id = 1;  // Идентификатор сессии
+  uint64 batch_ts_ms = 2; // Временная метка батча
+  
+  // Признаки из feature_extractor
+  double stv = 3;
+  double ltv = 4;
+  double baseline_heart_rate = 5;
+  int32 total_decelerations = 6;
+  int32 late_decelerations = 7;
+  double late_deceleration_ratio = 8;
+  int32 total_accelerations = 9;
+  double accel_decel_ratio = 10;
+  int32 total_contractions = 11;
+  double stv_trend = 12;
+  double bpm_trend = 13;
+  int32 data_points = 14;
+  double time_span_sec = 15;
+}
+
+// Ответ с предсказанием
+message PredictResponse {
+  string session_id = 1;      // Идентификатор сессии
+  uint64 batch_ts_ms = 2;     // Временная метка батча
+  double prediction = 3;      // Вероятность патологии (0.0 - 1.0)
+  string status = 4;          // Статус: "success", "processing", "error"
+  string message = 5;         // Дополнительное сообщение
+  bool has_enough_data = 6;   // Достаточно ли данных для предсказания
+}
+
+// Запрос на сброс коллектора
+message ResetCollectorRequest {
+  string session_id = 1; // Идентификатор сессии
+}
+
+// Ответ на сброс коллектора
+message ResetCollectorResponse {
+  bool success = 1;      // Успешность операции
+  string message = 2;    // Сообщение об операции
+}
+

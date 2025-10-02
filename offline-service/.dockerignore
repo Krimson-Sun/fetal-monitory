@@ -1,0 +1,33 @@
+# Игнорируем ненужные файлы при сборке Docker образа
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.log
+
+# Тестовые файлы
+*_test.go
+testdata/
+
+# CSV данные (будут монтироваться через volume)
+*.csv
+bpm_data*.csv
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Временные файлы
+tmp/
+temp/
+

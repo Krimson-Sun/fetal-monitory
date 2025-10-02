@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package feature_extractor.v1;
+option go_package = "./;featureextractorv1";
+
+// Сервис для извлечения медицинских признаков из данных мониторинга плода
+service FeatureExtractorService {
+  // Отправляет батч данных для обработки и получает обработанные метрики
+  rpc ProcessBatch(ProcessBatchRequest) returns (ProcessBatchResponse);
+  
+  // Стрим для обработки батчей в реальном времени
+  rpc ProcessBatchStream(stream ProcessBatchRequest) returns (stream ProcessBatchResponse);
+  
+  // Сброс состояния коллектора (начало новой сессии)
+  rpc ResetCollector(ResetCollectorRequest) returns (ResetCollectorResponse);
+}
+
+// Точка данных с временной меткой и значением
+message DataPoint {
+  double time_sec = 1;  // Время в секундах
+  double value = 2;     // Значение измерения
+}
+
+// Запрос на обработку батча
+message ProcessBatchRequest {
+  string session_id = 1;  // Идентификатор сессии
+  
+  // Данные ЧСС (может быть пустым если нет данных FHR в батче)
+  repeated DataPoint bpm_data = 2;
+  
+  // Данные маточных сокращений (может быть пустым если нет данных UC в батче)
+  repeated DataPoint uterus_data = 3;
+  
+  // Временная метка батча
+  uint64 batch_ts_ms = 4;
+}
+
+// Ответ с обработанными метриками
+message ProcessBatchResponse {
+  string session_id = 1;  // Идентификатор сессии
+  uint64 batch_ts_ms = 2; // Временная метка обработанного батча
+  
+  // Основные метрики
+  double stv = 3;                    // Short-Term Variability
+  double ltv = 4;                    // Long-Term Variability  
+  double baseline_heart_rate = 5;    // Базовая ЧСС
+  
+  // События
+  repeated Acceleration accelerations = 6;  // Акселерации
+  repeated Deceleration decelerations = 7;  // Децелерации
+  repeated Contraction contractions = 8;    // Маточные сокращения
+  
+  // Временные ряды метрик
+  repeated double stvs = 9;             // Массив STV по окнам
+  double stvs_window_duration = 10;     // Длительность окна STV в секундах
+  repeated double ltvs = 11;            // Массив LTV по окнам  
+  double ltvs_window_duration = 12;     // Длительность окна LTV в секундах
+  
+  // Статистика
+  int32 total_decelerations = 13;       // Общее количество децелераций
+  int32 late_decelerations = 14;        // Количество поздних децелераций
+  double late_deceleration_ratio = 15;  // Доля поздних децелераций
+  int32 total_accelerations = 16;       // Общее количество акселераций
+  double accel_decel_ratio = 17;        // Соотношение акселераций к децелерациям
+  int32 total_contractions = 18;        // Общее количество сокращений
+  
+  // Тренды
+  double stv_trend = 19;                // Тренд STV
+  double bpm_trend = 20;                // Тренд ЧСС
+  
+  // Мета-информация
+  int32 data_points = 21;               // Количество точек данных
+  double time_span_sec = 22;            // Длительность наблюдений в секундах
+  
+  // Отфильтрованные данные для передачи на фронтенд
+  repeated DataPoint filtered_bpm_batch = 23;    // Отфильтрованный батч ЧСС
+  repeated DataPoint filtered_uterus_batch = 24; // Отфильтрованный батч маточных сокращений
+}
+
+// Акселерация ЧСС
+message Acceleration {
+  double start = 1;     // Индекс начала
+  double end = 2;       // Индекс окончания
+  double duration = 3;  // Длительность в секундах
+  double amplitude = 4; // Амплитуда в ударах/минуту
+}
+
+// Децелерация ЧСС
+message Deceleration {
+  double start = 1;     // Индекс начала
+  double end = 2;       // Индекс окончания  
+  double duration = 3;  // Длительность в секундах
+  double amplitude = 4; // Амплитуда в ударах/минуту
+  bool is_late = 5;     // Является ли поздней децелерацией
+}
+
+// Маточное сокращение
+message Contraction {
+  double start = 1;     // Индекс начала
+  double end = 2;       // Индекс окончания
+  double duration = 3;  // Длительность в секундах
+  double amplitude = 4; // Амплитуда сокращения
+}
+
+// Запрос на сброс коллектора
+message ResetCollectorRequest {
+  string session_id = 1; // Идентификатор сессии
+}
+
+// Ответ на сброс коллектора
+message ResetCollectorResponse {
+  bool success = 1;      // Успешность операции
+  string message = 2;    // Сообщение об операции
+}

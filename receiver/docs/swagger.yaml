@@ -1,0 +1,434 @@
+basePath: /
+definitions:
+  session.CreateSessionRequest:
+    properties:
+      created_from:
+        type: string
+      custom_data:
+        additionalProperties: true
+        type: object
+      doctor_id:
+        type: string
+      facility_id:
+        type: string
+      notes:
+        type: string
+      patient_id:
+        type: string
+    type: object
+  session.EventType:
+    enum:
+    - acceleration
+    - deceleration
+    - contraction
+    type: string
+    x-enum-varnames:
+    - EventTypeAcceleration
+    - EventTypeDeceleration
+    - EventTypeContraction
+  session.FilteredDataPoint:
+    properties:
+      time_sec:
+        type: number
+      value:
+        type: number
+    type: object
+  session.Metadata:
+    properties:
+      created_from:
+        description: '"web", "mobile", "emulator"'
+        type: string
+      custom_data:
+        additionalProperties: true
+        type: object
+      doctor_id:
+        type: string
+      facility_id:
+        type: string
+      notes:
+        type: string
+      patient_id:
+        type: string
+    type: object
+  session.SaveSessionRequest:
+    properties:
+      notes:
+        type: string
+    type: object
+  session.Session:
+    properties:
+      id:
+        type: string
+      metadata:
+        $ref: '#/definitions/session.Metadata'
+      saved_at:
+        type: string
+      started_at:
+        type: string
+      status:
+        $ref: '#/definitions/session.SessionStatus'
+      stopped_at:
+        type: string
+      total_data_points:
+        type: integer
+      total_duration_ms:
+        type: integer
+    type: object
+  session.SessionData:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/session.SessionEvent'
+        type: array
+      filtered_bpm_data:
+        items:
+          $ref: '#/definitions/session.FilteredDataPoint'
+        type: array
+      filtered_uterus_data:
+        items:
+          $ref: '#/definitions/session.FilteredDataPoint'
+        type: array
+      metrics:
+        $ref: '#/definitions/session.SessionMetrics'
+      session:
+        $ref: '#/definitions/session.Session'
+      time_series_ltv:
+        items:
+          $ref: '#/definitions/session.TimeSeriesPoint'
+        type: array
+      time_series_stv:
+        items:
+          $ref: '#/definitions/session.TimeSeriesPoint'
+        type: array
+    type: object
+  session.SessionEvent:
+    properties:
+      amplitude:
+        type: number
+      created_at:
+        type: string
+      duration:
+        type: number
+      end_time:
+        type: number
+      id:
+        type: integer
+      is_late:
+        type: boolean
+      session_id:
+        type: string
+      start_time:
+        type: number
+      type:
+        $ref: '#/definitions/session.EventType'
+    type: object
+  session.SessionMetrics:
+    properties:
+      accel_decel_ratio:
+        type: number
+      baseline_heart_rate:
+        type: number
+      bpm_trend:
+        type: number
+      data_points:
+        type: integer
+      late_deceleration_ratio:
+        type: number
+      late_decelerations:
+        type: integer
+      ltv:
+        type: number
+      session_id:
+        type: string
+      stv:
+        type: number
+      stv_trend:
+        type: number
+      time_span_sec:
+        type: number
+      total_accelerations:
+        type: integer
+      total_contractions:
+        type: integer
+      total_decelerations:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  session.SessionResponse:
+    properties:
+      metrics:
+        $ref: '#/definitions/session.SessionMetrics'
+      session:
+        $ref: '#/definitions/session.Session'
+    type: object
+  session.SessionStatus:
+    enum:
+    - ACTIVE
+    - STOPPED
+    - SAVED
+    type: string
+    x-enum-varnames:
+    - SessionStatusActive
+    - SessionStatusStopped
+    - SessionStatusSaved
+  session.TimeSeriesPoint:
+    properties:
+      session_id:
+        type: string
+      time_index:
+        type: integer
+      type:
+        $ref: '#/definitions/session.TimeSeriesType'
+      value:
+        type: number
+      window_duration:
+        type: number
+    type: object
+  session.TimeSeriesType:
+    enum:
+    - stv
+    - ltv
+    type: string
+    x-enum-varnames:
+    - TimeSeriesTypeSTV
+    - TimeSeriesTypeLTV
+host: localhost:8080
+info:
+  contact:
+    email: support@fetalmonitory.com
+    name: API Support
+  description: |
+    API для системы мониторинга плода в реальном времени
+
+    ## Описание
+    Этот API предоставляет endpoints для управления сессиями мониторинга, получения метрик и real-time данных через WebSocket.
+
+    ## WebSocket
+    Подключение: `ws://localhost:8080/ws?session_id={session_id}`
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Fetal Monitoring API
+  version: "1.0"
+paths:
+  /api/sessions:
+    get:
+      description: Возвращает список сессий с пагинацией
+      parameters:
+      - default: 50
+        description: Количество сессий на странице
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение от начала списка
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список сессий
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить список сессий
+      tags:
+      - Sessions
+    post:
+      consumes:
+      - application/json
+      description: Создает новую сессию мониторинга плода с указанными параметрами
+      parameters:
+      - description: Параметры сессии
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/session.CreateSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Сессия успешно создана
+          schema:
+            $ref: '#/definitions/session.SessionResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Создать новую сессию
+      tags:
+      - Sessions
+  /api/sessions/{id}:
+    delete:
+      description: Удаляет сессию из Redis (не удаляет из PostgreSQL)
+      parameters:
+      - description: ID сессии
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сессия удалена
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Ошибка удаления сессии
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удалить сессию
+      tags:
+      - Sessions
+    get:
+      description: Возвращает детальную информацию о сессии и ее метрики
+      parameters:
+      - description: ID сессии
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о сессии
+          schema:
+            $ref: '#/definitions/session.SessionResponse'
+        "404":
+          description: Сессия не найдена
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить информацию о сессии
+      tags:
+      - Sessions
+  /api/sessions/{id}/data:
+    get:
+      description: Возвращает полный набор данных сессии включая метрики, события
+        и временные ряды
+      parameters:
+      - description: ID сессии
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Полные данные сессии
+          schema:
+            $ref: '#/definitions/session.SessionData'
+        "404":
+          description: Данные сессии не найдены
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить все данные сессии
+      tags:
+      - Sessions
+  /api/sessions/{id}/metrics:
+    get:
+      description: Возвращает агрегированные метрики сессии (STV, LTV, ЧСС, и т.д.)
+      parameters:
+      - description: ID сессии
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Метрики сессии
+          schema:
+            $ref: '#/definitions/session.SessionMetrics'
+        "404":
+          description: Метрики не найдены
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить метрики сессии
+      tags:
+      - Sessions
+  /api/sessions/{id}/save:
+    post:
+      consumes:
+      - application/json
+      description: Сохраняет данные сессии в PostgreSQL для долгосрочного хранения
+      parameters:
+      - description: ID сессии
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Дополнительные заметки
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/session.SaveSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сессия сохранена
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Ошибка сохранения сессии
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Сохранить сессию
+      tags:
+      - Sessions
+  /api/sessions/{id}/stop:
+    post:
+      description: Останавливает активную сессию мониторинга
+      parameters:
+      - description: ID сессии
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сессия остановлена
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Ошибка остановки сессии
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Остановить сессию
+      tags:
+      - Sessions
+schemes:
+- http
+- ws
+swagger: "2.0"
