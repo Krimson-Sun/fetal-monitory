@@ -1,26 +1,103 @@
 version: "3.9"
 
 services:
+  # Redis для временного хранения данных активных сессий
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL для постоянного хранения сессий
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: fetal_monitor
+      POSTGRES_USER: fetal_user
+      POSTGRES_PASSWORD: fetal_pass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fetal_user -d fetal_monitor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Python сервис для извлечения медицинских признаков
+  feature-extractor:
+    build:
+      context: . 
+      dockerfile: ./feature_extractor/Dockerfile
+    ports:
+      - "50052:50052"  # gRPC порт для feature extractor
+    environment:
+      - GRPC_PORT=50052
+    volumes:
+      - ./proto:/app/proto:ro  # Протофайлы для генерации gRPC кода
+    healthcheck:
+      test: ["CMD", "python", "-c", "import grpc; grpc.channel_ready_future(grpc.insecure_channel('localhost:50052')).result(timeout=1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Go сервис для приема телеметрии
   data-receiver:
     build:
       context: . 
       dockerfile: ./receiver/Dockerfile
     ports:
-      - "50051:50051"  
+      - "50051:50051"  # gRPC порт для приема телеметрии
+      - "8080:8080"    # HTTP порт для WebSocket и REST API
     environment:
       - GRPC_PORT=50051
-      - BATCH_MAX_SAMPLES=250
-      - BATCH_MAX_SPAN_MS=30000
-      - FLUSH_INTERVAL_MS=500
-      - ACK_EVERY_N=50
+      - HTTP_PORT=8080
+      - BATCH_MAX_SAMPLES=2        # 1 точка каждой метрики (FHR+UC) за 0.25сек при 4Hz
+      - BATCH_MAX_SPAN_MS=250      # 250мс для достижения 4Hz на фронтенде
+      - FLUSH_INTERVAL_MS=250      # Отправка каждые 250мс (4Hz)
+      - ACK_EVERY_N=10
+      - FEATURE_EXTRACTOR_ADDR=feature-extractor:50052
+      # Redis
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      # PostgreSQL
+      - POSTGRES_DSN=postgres://fetal_user:fetal_pass@postgres:5432/fetal_monitor?sslmode=disable
+      # Session
+      - SESSION_DATA_TTL_SECONDS=86400
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      feature-extractor:
+        condition: service_healthy
 
+  # Эмулятор для генерации тестовых данных
   stream-emulator:
     build:
       context: .
       dockerfile: ./emulator/Dockerfile
     environment:
       - TARGET_ADDR=data-receiver:50051
+      - SESSION_ID=${SESSION_ID:-}  # Опционально: задать через переменную окружения
     depends_on:
       - data-receiver
     volumes:
       - ./data:/data:ro
+
+# Volumes для сохранения данных
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local

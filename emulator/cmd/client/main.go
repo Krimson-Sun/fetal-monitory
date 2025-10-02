@@ -3,7 +3,9 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -22,9 +24,15 @@ func main() {
 		fhrFile    = flag.String("fhr", "fhr.csv", "Файл с данными пульса плода")
 		ucFile     = flag.String("uc", "uc.csv", "Файл с данными сокращений матки")
 		serverAddr = flag.String("server", "localhost:50051", "Адрес gRPC сервера")
-		sessionID  = flag.String("session", "session-123", "ID сессии")
+		sessionID  = flag.String("session", "", "ID сессии (если пусто - генерируется автоматически)")
 	)
 	flag.Parse()
+
+	// Генерируем UUID если session_id не указан
+	if *sessionID == "" {
+		*sessionID = generateSessionID()
+		log.Printf("Generated session ID: %s", *sessionID)
+	}
 
 	// Чтение CSV файлов
 	fhrData, err := csvreader.ReadCSVFile(*fhrFile)
@@ -142,4 +150,16 @@ func main() {
 	cancel()
 	wg.Wait()
 	log.Println("Application stopped gracefully")
+}
+
+// generateSessionID генерирует уникальный ID сессии
+func generateSessionID() string {
+	// Простой UUID v4 без внешних зависимостей
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		log.Fatalf("Failed to generate session ID: %v", err)
+	}
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
