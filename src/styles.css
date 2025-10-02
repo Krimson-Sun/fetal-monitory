@@ -71,6 +71,11 @@ body {
   color: var(--white);
 }
 
+.status-gray {
+  background-color: var(--gray);
+  color: var(--white);
+}
+
 .main-content {
   display: flex;
   flex: 1;
@@ -209,6 +214,10 @@ body {
 
 .forecast-red {
   background-color: var(--red);
+}
+
+.forecast-gray {
+  background-color: var(--gray);
 }
 
 .forecast-recommendation {

@@ -135,8 +135,8 @@ export function resetCharts(){
             y: {
               type: 'linear',
               position: 'left',
-              min: 50,
-              max: 200,
+              min: null,
+              max: null,
               grid: {
                 color: 'rgba(200, 200, 200, 0.3)',
                 lineWidth: 1,
@@ -249,8 +249,8 @@ export function resetCharts(){
             y: {
               type: 'linear',
               position: 'left',
-              min: 0,
-              max: 100,
+              min: null,
+              max: null,
               grid: {
                 color: 'rgba(200, 200, 200, 0.3)',
                 lineWidth: 1,
@@ -316,10 +316,10 @@ export function updateData() {
     if (data['records']['filtered_uterus_batch']['value'].length>52)
       data['records']['filtered_uterus_batch']['value'] = data['records']['filtered_uterus_batch']['value'].slice(-52)
 
-    updateOnlineData(data['records'], data['prediction']);
+    //updateOnlineData(data['records'], data['prediction']);
 }
 
-export function updateOnlineData(data) {
+export function updateOnlineData(data, prediction) {
     let j;
     let min_bpm = hrChart.options.scales.y.min
     let max_bpm = hrChart.options.scales.y.max
@@ -328,7 +328,7 @@ export function updateOnlineData(data) {
 
 
     const bpmFiltered = data['filtered_bpm_batch']
-    j = Math.max(0, hrChart.data.datasets[0].data.length - 51)
+    j = Math.max(0, hrChart.data.datasets[0].data.length - 53)
     while (hrChart.data.datasets[0].data[j] && hrChart.data.datasets[0].data[j].x < bpmFiltered['time_sec'][0] * 1000) j++;
     for (let k=0; k<bpmFiltered['time_sec'].length; k++){
       if (k+j < hrChart.data.datasets[0].data.length)
@@ -347,7 +347,7 @@ export function updateOnlineData(data) {
     }
 
     const ucFiltered = data['filtered_uterus_batch']
-    j = Math.max(0, uterineChart.data.datasets[0].data.length - 51)
+    j = Math.max(0, uterineChart.data.datasets[0].data.length - 53)
     while (uterineChart.data.datasets[0].data[j] && uterineChart.data.datasets[0].data[j].x < ucFiltered['time_sec'][0] * 1000) j++;
     for (let i=0; i<ucFiltered['time_sec'].length; i++){
       if (i+j < uterineChart.data.datasets[0].data.length)
@@ -399,17 +399,19 @@ export function updateOnlineData(data) {
     updateMetric('ltv', ltv, (value)=>value == 0? null:value.toFixed(1))
     updateMetric('late-decel', lateDecel, (value)=> data['total_decelerations'] == 0? null:`${value.toFixed(1)}%`)
     updateMetric('accelerations-rate', (data['total_accelerations']*60000 / (max_time-min_time)).toFixed(0))
-    updateMetric('mean-contractions-amplitude', meanContAmplitude, (value)=>value.toFixed(0))
+    updateMetric('mean-contractions-amplitude', meanContAmplitude, (value)=>data['total_contractions'] == 0?null:value.toFixed(0))
     
     document.getElementById('accelerations-value').textContent = data['total_accelerations'];
     document.getElementById('decelerations-value').textContent = data['total_decelerations'];
     document.getElementById('contractions-value').textContent = data['total_contractions'];
 
-    document.getElementById('forecast-value').textContent = `${(data['prediction']*100).toFixed(0)}%`;
-    const predictionStatus = METRIC_LIMITS['prediction'](data['prediction'])
+    document.getElementById('forecast-value').textContent = prediction==0?'-':`${(prediction*100).toFixed(0)}%`;
+    const predictionStatus = METRIC_LIMITS['prediction'](prediction)
+    console.log(prediction)
     document.getElementById('forecast-value').className = `forecast-value forecast-${predictionStatus}`;
     document.getElementById('status-badge').className = `status-badge status-${predictionStatus}`;
-    document.getElementById('status-badge').textContent = 
+    document.getElementById('status-badge').textContent =
+      predictionStatus == 'gray'? 'Недостаточно данных':
         predictionStatus == 'green'?'Все в порядке':predictionStatus == 'yellow'? 'Требуется внимание':'Риск осложнений';
 
     // Обновление всех графиков
@@ -504,27 +506,30 @@ function setAccelDecelContr(accelerations, decelerations, contractions){
 
   for (let i=0; i<contractions.length; i++){
     let contraction = contractions[i]
-    uterineChart.data.datasets[1].data.push({
-      x: uterineChart.data.datasets[0].data[contraction['start']].x,
-      y: uterineChart.data.datasets[0].data[contraction['start']].y,
-    })
+    if (uterineChart.data.datasets[0].data[contraction['start']])
+      uterineChart.data.datasets[1].data.push({
+        x: uterineChart.data.datasets[0].data[contraction['start']].x,
+        y: uterineChart.data.datasets[0].data[contraction['start']].y,
+      })
     meanContAmplitude += contraction['amplitude']/contractions.length;
   }
 
   for (let i=0; i<accelerations.length; i++){
     let accel = accelerations[i]
-    hrChart.data.datasets[1].data.push({
-      x: hrChart.data.datasets[0].data[accel['start']].x,
-      y: hrChart.data.datasets[0].data[accel['start']].y,
-    })
+    if (uterineChart.data.datasets[0].data[accel['start']])
+      hrChart.data.datasets[1].data.push({
+        x: hrChart.data.datasets[0].data[accel['start']].x,
+        y: hrChart.data.datasets[0].data[accel['start']].y,
+      })
   }
 
   for (let i=0; i<decelerations.length; i++){
-    let accel = decelerations[i]
-    hrChart.data.datasets[2].data.push({
-      x: hrChart.data.datasets[0].data[accel['start']].x,
-      y: hrChart.data.datasets[0].data[accel['start']].y,
-    })
+    let decel = decelerations[i]
+    if (uterineChart.data.datasets[0].data[decel['start']])
+      hrChart.data.datasets[2].data.push({
+        x: hrChart.data.datasets[0].data[decel['start']].x,
+        y: hrChart.data.datasets[0].data[decel['start']].y,
+      })
   }
 
   return meanContAmplitude

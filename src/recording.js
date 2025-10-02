@@ -34,13 +34,13 @@ export async function startRecording(){
         ws.onopen = () => {
             console.log('Подключено к WebSocket');
         };
-
+        
         ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         console.log('Получены данные:', data);
         
         // Обновить графики
-        updateOnlineData(data.records);
+        updateOnlineData(data.records, data.prediction);
         };
 
         ws.onerror = (error) => {

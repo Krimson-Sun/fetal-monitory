@@ -6,5 +6,5 @@ export const METRIC_LIMITS = {
     'mean-contractions-amplitude': (value)=> value>20?'green':value>10?'yellow':'red',
     'accelerations-rate': (value)=> value>2? 'green':value>1?'yellow':'red',
 
-    'prediction': (value) => value>0.8? 'red alert-pulse':value>0.2?'yellow':'green'
+    'prediction': (value) => value==0?'gray':value>0.8? 'red alert-pulse':value>0.2?'yellow':'green'
 }
