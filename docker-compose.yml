@@ -145,6 +145,16 @@ services:
       - data-receiver
     volumes:
       - ./data:/data:ro
+  
+  frontend:
+    build:
+      context: ./frontend  # Контекст - папка frontend
+      dockerfile: Dockerfile  # Файл называется просто Dockerfile
+    ports:
+      - "3000:80"  # Доступен по http://localhost:3000
+    depends_on:
+      - data-receiver
+      - offline-service
 
 # Volumes для сохранения данных
 volumes:

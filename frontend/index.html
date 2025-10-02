@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Итэлма | Предиктивная аналитика физиологических данных</title>
+  <link rel="stylesheet" href="src/styles.css">
+  <link rel="stylesheet" href="src/inputFormStyle.css">
+</head>
+<body>
+  <div class="dashboard">
+    <div class="header">
+      <img src="./logo-cropped.svg" alt="Итэлма" style="height: 100%;" id="logo"/>
+      <div class="title" style="color:black">| Предиктивная аналитика физиологических данных</div>
+    </div>
+    
+    <div class="main-content disabled" id="main-content">
+      <div class="left-panel">
+        <div class="card">
+          <div class="card-header">Частота сердечных сокращений плода</div>
+          <div class="card-content">
+            <div class="chart-container">
+              <canvas id="hrChart"  width="500" height="100"></canvas>
+            </div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>ЧСС</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Ускорения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Децелерации</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">Маточные сокращения</div>
+          <div class="card-content">
+            <div class="chart-container">
+              <canvas id="uterineChart" width="500" height="100"></canvas>
+            </div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>Сокращения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Схватки</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+          <div class="card">
+          <div class="card-header" style="margin: 0;">
+            <div>Результат анализа:</div>
+              <div class="status-badge status-green" id="status-badge">Норма</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Ключевые метрики</div>
+          <div class="card-content">
+            <div class="dashboard-legend" >
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Норма</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #FFC107;"></div>Повышенный риск</div>
+            </div>
+            <div class="dashboard-legend" >
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Отклонение</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: rgb(200, 200, 200);"></div>Данных недостаточно</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">БЧСС (уд/мин)</div>
+                <div class="metric-value" id="baseline-value">-</div>
+                <div id = "baseline-status" class="metric-status metric-status-green"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Поздние децелерации</div>
+                <div class="metric-value" id="late-decel-value">-</div>
+                <div class="metric-status metric-status-green" id="late-decel-status"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">STV (мс)</div>
+                <div class="metric-value" id="stv-value">-</div>
+                <div class="metric-status metric-status-green" id="stv-status"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">LTV (мс)</div>
+                <div class="metric-value" id="ltv-value">-</div>
+                <div class="metric-status metric-status-green" id="ltv-status"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Средняя амлитуда схваток</div>
+                <div class="metric-value" id="mean-contractions-amplitude-value">-</div>
+                <div class="metric-status metric-status-green" id="mean-contractions-amplitude-status"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Количество акселераций за 10 мин</div>
+                <div class="metric-value" id="accelerations-rate-value">-</div>
+                <div class="metric-status metric-status-green" id="accelerations-rate-status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div class="header" id="more-metric-opener">
+          <div class="triangle" id="triangle" style="text-decoration: none;">
+            🞂
+          </div>
+          <div class="title"><b>Больше данных</b></div>
+      </div>
+    
+      <div class="main-content disabled" id="second-content" style="display: none;">
+      <div class="left-panel">
+        <div class="card">
+          <div class="card-header">График 1</div>
+          <div class="card-content">
+            <div class="chart-container">
+              <canvas  width="500" height="100"></canvas>
+            </div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>ЧСС</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Ускорения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Децелерации</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">График 2</div>
+          <div class="card-content">
+            <div class="chart-container">
+              <canvas  width="500" height="100"></canvas>
+            </div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>Сокращения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Схватки</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+          <div class="card">
+          <div class="card-header">
+            <div>Вероятность осложнений</div>
+            <div class="forecast-value forecast-green" id="forecast-value">0%</div>
+          </div>
+          <div class="card-content">
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Норма</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #FFC107;"></div>Повышенный риск</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Экстренное вмешательство</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Прочие метрики</div>
+          <div class="card-content">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">Всего схваток</div>
+                <div class="metric-value" id="contractions-value">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Всего акселераций</div>
+                <div class="metric-value" id="accelerations-value">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Всего децелераций</div>
+                <div class="metric-value" id="decelerations-value">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <footer class="app-footer">
+        <div class="footer-content">
+          Разработано командой «пАнекА» в рамках хакатона «Лидеры цифровой трансформации»
+        </div>
+      </footer>
+  </div>
+  
+    <button class="ctg-recording-button reset hidden" id="reset-btn" title="Начать новое наблюдение">
+    <span class="icon">
+      <svg fill="white" viewBox="-0.5 0.5 42 42">
+        <path d="M26.731,17.5H39.5V4.91l-4.335,4.385c-0.34-0.399-0.651-0.79-1.021-1.17c-7.48-7.5-19.572-7.5-27.042,0
+        c-7.479,7.5-7.465,19.661,0.015,27.161c7.471,7.5,19.597,7.5,27.078,0c0,0,2.505-2.939,3.334-4.51l-4.129-1.84
+        c-0.609,1.068-2.39,3.148-2.39,3.148c-5.719,5.74-14.979,5.74-20.689,0c-5.72-5.729-5.719-15.031,0-20.761
+        c5.71-5.74,14.971-5.74,20.689,0c0.381,0.38,0.729,0.574,1.061,0.984L26.731,17.5z"/>
+      </svg>
+    </span>
+  </button>
+
+  <button class="ctg-recording-button input" id="input-btn" title="Импорт данных из файла">
+    <span class="icon">
+      <svg viewBox="2 2 19 22" fill="white">
+        <path d="M13.75 5.00001V2.25001L14.1716 2.25001L14.2516 2.24985C14.5773 2.24891 14.9288 2.2479 15.2555 2.38322C15.5822 2.51854 15.83 2.7678 16.0596 2.99875L16.1161 3.05546L18.9445 5.88389L19.0013 5.94038C19.2322 6.17 19.4815 6.41783 19.6168 6.74452C19.7521 7.07122 19.7511 7.42271 19.7502 7.74838L19.75 7.82843V8.25001H17C16.036 8.25001 15.3884 8.24841 14.9054 8.18347C14.4439 8.12143 14.2464 8.01421 14.1161 7.88389C13.9858 7.75357 13.8786 7.55608 13.8165 7.09462C13.7516 6.61158 13.75 5.96402 13.75 5.00001Z"/>
+        <path d="M12.25 5.05201L12.25 2.25001L8.948 2.25001C8.04953 2.24998 7.30031 2.24995 6.70552 2.32992C6.07773 2.41432 5.51093 2.59999 5.05546 3.05546C4.59999 3.51093 4.41432 4.07773 4.32992 4.70553C4.24995 5.30029 4.24997 6.04956 4.25 6.94801V16.75H4.75V16C4.75 14.7574 5.75736 13.75 7 13.75C8.24264 13.75 9.25 14.7574 9.25 16V16.75H10C11.2426 16.75 12.25 17.7574 12.25 19C12.25 20.2426 11.2426 21.25 10 21.25H9.25V21.75H15.052C15.9505 21.75 16.6997 21.7501 17.2945 21.6701C17.9223 21.5857 18.4891 21.4 18.9445 20.9446C19.4 20.4891 19.5857 19.9223 19.6701 19.2945C19.7501 18.6997 19.75 17.9505 19.75 17.052L19.75 9.75001L16.948 9.75001C16.0495 9.75004 15.3003 9.75006 14.7055 9.6701C14.0777 9.58569 13.5109 9.40002 13.0555 8.94455C12.6 8.48908 12.4143 7.92228 12.3299 7.29449C12.2499 6.69971 12.25 5.95049 12.25 5.05201Z"/>
+        <path d="M8 16C8 15.4477 7.55228 15 7 15C6.44772 15 6 15.4477 6 16V18H4C3.44772 18 3 18.4477 3 19C3 19.5523 3.44772 20 4 20H6V22C6 22.5523 6.44772 23 7 23C7.55228 23 8 22.5523 8 22V20H10C10.5523 20 11 19.5523 11 19C11 18.4477 10.5523 18 10 18H8V16Z"/>
+      </svg>
+    </span>
+  </button>
+
+  
+  <!-- Кнопка в состоянии "Начать запись" (треугольник) -->
+  <button class="ctg-recording-button" id="recording-btn" title="Начать наблюдение">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M3 4 A2 2 0 0 1 5.99 2.71 L20.83 11.19 A2 2 0 0 1 20.76 14.70 L5.93 22.47 A2 2 0 0 1 3 20.70 Z" fill="white" />
+      </svg>
+    </span>
+  </button>
+
+    <div class="file-import-alert" id="file-import-alert" style="display: none;">
+      <div class="alert-content">
+        <div class="alert-header">
+          <h3>Импорт данных КТГ</h3>
+          <button class="close-button" id="close-import-alert">&times;</button>
+      </div>
+      <div class="alert-body">
+        <div class="file-input-group">
+        <div class="upload-section" id="bpmSection">
+          <h4  style="text-align: center;">Данные ЧСС плода (BPM)</h4>
+          <input type="file" id="bpmFileInput" accept=".csv" style="display: none;">
+          <button onclick="document.getElementById('bpmFileInput').click()">Выбрать файл (.csv)</button>
+          <div id="bpmFileInfo" class="file-info" style="display: none;"></div>
+          <div class="requirements">
+              Формат: две колонки (time_sec, value)<br>
+              Пример: <br>time_sec, value<br>0.0, 140.0<br>60.0, 138.0<br>120.0, 142.0
+          </div>
+        </div>
+
+        <div class="upload-section" id="ucSection">
+            <h4 style="text-align: center;">Данные маточных сокращений (%)</h4>
+            <input type="file" id="ucFileInput" accept=".csv" style="display: none;">
+            <button onclick="document.getElementById('ucFileInput').click()">Выбрать файл (.csv)</button>
+            <div id="ucFileInfo" class="file-info" style="display: none;"></div>
+            <div class="requirements">
+                Формат: две колонки (time_sec, value)<br>
+                Пример: <br>time_sec, value<br>0.0, 15.0<br>60.0, 18.0<br>120.0, 12.0
+            </div>
+        </div>
+        </div>
+        <div class="alert-footer">
+            <button id="sendButton" disabled>
+                <span class="text">Обработать данные</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="src/script.js" defer type="module"></script>
+</body>
+</html>
