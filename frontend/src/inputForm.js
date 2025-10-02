@@ -195,7 +195,6 @@ export function setInputAlertEventListeners(){
 }
 
 function checkFilesReady() {
-  console.log(bpmFile, ucFile)
     if (bpmFile && ucFile) {
         sendButton.disabled = false;
     } else {

@@ -15,6 +15,9 @@ let hrChart;
 let uterineChart;
 
 let fa = false
+let initDate
+
+export const resetInitDate = ()=>{initDate = null} 
 
 export function resetCharts(){
       if (hrChart) hrChart.destroy();
@@ -325,20 +328,21 @@ export function updateOnlineData(data, prediction) {
     let max_bpm = hrChart.options.scales.y.max
     let min_uc = uterineChart.options.scales.y.min
     let max_uc = uterineChart.options.scales.y.max
-
+    
+    initDate = initDate? initDate:data['filtered_bpm_batch']['time_sec'][0]
 
     const bpmFiltered = data['filtered_bpm_batch']
     j = Math.max(0, hrChart.data.datasets[0].data.length - 53)
-    while (hrChart.data.datasets[0].data[j] && hrChart.data.datasets[0].data[j].x < bpmFiltered['time_sec'][0] * 1000) j++;
+    while (hrChart.data.datasets[0].data[j] && hrChart.data.datasets[0].data[j].x < (bpmFiltered['time_sec'][0]-initDate) * 1000) j++;
     for (let k=0; k<bpmFiltered['time_sec'].length; k++){
       if (k+j < hrChart.data.datasets[0].data.length)
         hrChart.data.datasets[0].data[k+j] = {
-          x:bpmFiltered['time_sec'][k] * 1000,
+          x:(bpmFiltered['time_sec'][k]-initDate) * 1000,
           y:bpmFiltered['value'][k]
         }
       else hrChart.data.datasets[0].data.push(
         {
-          x:bpmFiltered['time_sec'][k] * 1000,
+          x:(bpmFiltered['time_sec'][k]-initDate) * 1000,
           y:bpmFiltered['value'][k]
         }
       )
@@ -348,22 +352,21 @@ export function updateOnlineData(data, prediction) {
 
     const ucFiltered = data['filtered_uterus_batch']
     j = Math.max(0, uterineChart.data.datasets[0].data.length - 53)
-    while (uterineChart.data.datasets[0].data[j] && uterineChart.data.datasets[0].data[j].x < ucFiltered['time_sec'][0] * 1000) j++;
+    while (uterineChart.data.datasets[0].data[j] && uterineChart.data.datasets[0].data[j].x < (ucFiltered['time_sec'][0]-initDate) * 1000) j++;
     for (let i=0; i<ucFiltered['time_sec'].length; i++){
       if (i+j < uterineChart.data.datasets[0].data.length)
         uterineChart.data.datasets[0].data[i+j] = {
-          x:ucFiltered['time_sec'][i] * 1000,
+          x:(ucFiltered['time_sec'][i]-initDate) * 1000,
           y:ucFiltered['value'][i]
         }
       else uterineChart.data.datasets[0].data.push(
         {
-          x:ucFiltered['time_sec'][i] * 1000,
+          x:(ucFiltered['time_sec'][i]-initDate) * 1000,
           y:ucFiltered['value'][i]
         }
       )
       if (ucFiltered['value'][i]>max_uc) max_uc = ucFiltered['value'][i]
       if (ucFiltered['value'][i]<min_uc) min_uc = ucFiltered['value'][i]
-      if (ucFiltered['value'][i] > 100) console.log('!!!', ucFiltered['value'][i])
     }
 
     hrChart.data.datasets[1].data = []
@@ -407,7 +410,6 @@ export function updateOnlineData(data, prediction) {
 
     document.getElementById('forecast-value').textContent = prediction==0?'-':`${(prediction*100).toFixed(0)}%`;
     const predictionStatus = METRIC_LIMITS['prediction'](prediction)
-    console.log(prediction)
     document.getElementById('forecast-value').className = `forecast-value forecast-${predictionStatus}`;
     document.getElementById('status-badge').className = `status-badge status-${predictionStatus}`;
     document.getElementById('status-badge').textContent =

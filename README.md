@@ -169,7 +169,7 @@ docker-compose up --build
 - Data Receiver (порт 50051, 8080)
 - Offline Service (порт 8081)
 - Stream Emulator (автоматически начнет отправку данных)
-- frontend (порт 3000)
+- Frontend (порт 3000)
 
 3. **Откройте в браузере**
 - Интерфейс: `http://localhost:3000`

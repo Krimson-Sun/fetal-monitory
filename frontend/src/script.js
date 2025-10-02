@@ -141,8 +141,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  document.getElementById('logo').onclick = ()=>{
-    console.log('dev click');
-    setDataToCharts(EXAMPLE_DATA);
-    document.getElementById('main-content').className = 'main-content'}
 });

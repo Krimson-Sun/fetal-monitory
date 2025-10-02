@@ -37,7 +37,6 @@ export async function startRecording(){
         
         ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('Получены данные:', data);
         
         // Обновить графики
         updateOnlineData(data.records, data.prediction);
