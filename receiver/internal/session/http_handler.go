@@ -25,14 +25,14 @@ func NewHTTPHandler(manager *Manager) *HTTPHandler {
 func (h *HTTPHandler) RegisterRoutes(router *mux.Router) {
 	api := router.PathPrefix("/api/sessions").Subrouter()
 
-	api.HandleFunc("", h.CreateSession).Methods("POST")
-	api.HandleFunc("", h.ListSessions).Methods("GET")
-	api.HandleFunc("/{id}", h.GetSession).Methods("GET")
-	api.HandleFunc("/{id}/stop", h.StopSession).Methods("POST")
-	api.HandleFunc("/{id}/save", h.SaveSession).Methods("POST")
-	api.HandleFunc("/{id}", h.DeleteSession).Methods("DELETE")
-	api.HandleFunc("/{id}/metrics", h.GetSessionMetrics).Methods("GET")
-	api.HandleFunc("/{id}/data", h.GetSessionData).Methods("GET")
+	api.HandleFunc("", h.CreateSession).Methods("POST", "OPTIONS")
+	api.HandleFunc("", h.ListSessions).Methods("GET", "OPTIONS")
+	api.HandleFunc("/{id}", h.GetSession).Methods("GET", "OPTIONS")
+	api.HandleFunc("/{id}/stop", h.StopSession).Methods("POST", "OPTIONS")
+	api.HandleFunc("/{id}/save", h.SaveSession).Methods("POST", "OPTIONS")
+	api.HandleFunc("/{id}", h.DeleteSession).Methods("DELETE", "OPTIONS")
+	api.HandleFunc("/{id}/metrics", h.GetSessionMetrics).Methods("GET", "OPTIONS")
+	api.HandleFunc("/{id}/data", h.GetSessionData).Methods("GET", "OPTIONS")
 }
 
 // CreateSession создает новую сессию

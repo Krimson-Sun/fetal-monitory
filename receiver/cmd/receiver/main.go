@@ -106,7 +106,6 @@ func main() {
 	// Настраиваем HTTP сервер с роутером
 	router := mux.NewRouter()
 
-	// CORS middleware (должен быть первым!)
 	router.Use(corsMiddleware)
 
 	// WebSocket endpoint
@@ -183,24 +182,25 @@ func main() {
 // corsMiddleware добавляет CORS заголовки для разработки
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Разрешаем запросы с любого источника
+		// Получаем Origin из запроса
 		origin := r.Header.Get("Origin")
-		if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		} else {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+		if origin == "" {
+			origin = "*"
 		}
 
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-
+		// Устанавливаем CORS заголовки
+		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, X-Requested-With")
-
 		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
-
 		w.Header().Set("Access-Control-Max-Age", "86400")
 
+		// Если Origin конкретный (не *), разрешаем credentials
+		if origin != "*" {
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		}
+
+		// Обработка preflight запросов
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
