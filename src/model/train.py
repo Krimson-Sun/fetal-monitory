@@ -1,6 +1,7 @@
+import time
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
+from sklearn.model_selection import train_test_split, StratifiedKFold
 from catboost import CatBoostClassifier
 from sklearn.metrics import (
     roc_auc_score,
@@ -8,8 +9,11 @@ from sklearn.metrics import (
     confusion_matrix,
     precision_recall_fscore_support,
     classification_report,
+    roc_curve, auc, precision_recall_curve
 )
 
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def prepare_data(features_df, test_size=0.1, random_state=42):
     X = features_df.drop(
@@ -115,12 +119,66 @@ def calculate_metrics(y_true, y_pred_proba, threshold=0.3):
 
     return metrics_df, y_pred
 
+def plot_roc_auc(y_true, y_pred_proba, save_path='roc_auc_curve.png'):
+    """
+    Построение ROC-AUC кривой и сохранение графика
+    """
+    # Вычисляем ROC кривую и AUC
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred_proba)
+    roc_auc = auc(fpr, tpr)
+    
+    # Настройка стиля графика
+    plt.style.use('default')
+    plt.figure(figsize=(10, 8))
+    
+    # Построение ROC кривой
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.4f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Classifier')
+    
+    # Настройка графика
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate', fontsize=12)
+    plt.ylabel('True Positive Rate', fontsize=12)
+    plt.title('Receiver Operating Characteristic (ROC) Curve', fontsize=14, fontweight='bold')
+    plt.legend(loc="lower right")
+    plt.grid(True, alpha=0.3)
+    
+    # Сохранение графика
+    plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    
+    return roc_auc, fpr, tpr
+
+def plot_precision_recall_curve(y_true, y_pred_proba, save_path='precision_recall_curve.png'):
+    """
+    Дополнительно: построение Precision-Recall кривой
+    """
+    precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+    pr_auc = auc(recall, precision)
+    
+    plt.figure(figsize=(10, 8))
+    plt.plot(recall, precision, color='blue', lw=2, label=f'PR curve (AUC = {pr_auc:.4f})')
+    
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Recall', fontsize=12)
+    plt.ylabel('Precision', fontsize=12)
+    plt.title('Precision-Recall Curve', fontsize=14, fontweight='bold')
+    plt.legend(loc="upper right")
+    plt.grid(True, alpha=0.3)
+    
+    plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    
+    return pr_auc
+
 
 if __name__ == "__main__":
     features_df = pd.read_pickle(
         "/home/be2r/hackathons/fetal-monitory/large_data/final/features_df_last_hypoxia.pkl"
     )
-    MODE = "train"
+    MODE = "val"
     if MODE == "train":
         clfs, scores, auc_scores, X_test, y_test = catboost_pipeline(features_df)
         for i, clf in enumerate(clfs):
@@ -132,12 +190,16 @@ if __name__ == "__main__":
             )
     else:
         clfs = [load_model(f"catboost_kfold_{i}.cbm") for i in range(3)]
+        X_train, y_train, X_test, y_test = prepare_data(features_df)
 
     X_test.to_csv('x_test.csv')
     y_test.to_csv('y.csv')
-
+    ###
+    start_time = time.time()
     preds = predict_ensemble_proba(clfs, X_test)
-    metrics_df, y_pred_classes = calculate_metrics(y_test, preds)
+    end_time = time.time()
+    print(f"Время предсказания на {X_test.shape} сэмплах занимает: {end_time - start_time}")
+    metrics_df, y_pred_classes = calculate_metrics(y_test, preds, threshold=0.3)
 
     print("Метрики по классам:")
     print(metrics_df)
@@ -164,3 +226,21 @@ if __name__ == "__main__":
     print(
         f"Weighted Average: Precision={weighted_precision:.4f}, Recall={weighted_recall:.4f}, F1={weighted_f1:.4f}"
     )
+
+    # Построение ROC-AUC кривой
+    # Построение ROC-AUC кривой
+    fpr, tpr, thresholds = roc_curve(y_test, preds)
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.4f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
+    plt.legend(loc="lower right")
+    plt.grid(True, alpha=0.3)
+    plt.savefig('roc_auc_curve.png', dpi=300, bbox_inches='tight')
+    plt.show()
