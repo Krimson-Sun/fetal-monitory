@@ -27,6 +27,10 @@ type Hub struct {
 
 	// Мютекс для безопасной работы с картой клиентов
 	mu sync.RWMutex
+
+	// Последние предикты для каждой сессии (session_id -> prediction)
+	lastPredictions map[string]float64
+	predMu          sync.RWMutex
 }
 
 // Client представляет WebSocket клиента
@@ -121,10 +125,11 @@ var upgrader = websocket.Upgrader{
 // NewHub создает новый Hub
 func NewHub() *Hub {
 	return &Hub{
-		clients:    make(map[*Client]bool),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		broadcast:  make(chan []byte),
+		clients:         make(map[*Client]bool),
+		register:        make(chan *Client),
+		unregister:      make(chan *Client),
+		broadcast:       make(chan []byte),
+		lastPredictions: make(map[string]float64),
 	}
 }
 
@@ -179,6 +184,21 @@ func (h *Hub) BroadcastProcessedData(response *featureextractorv1.ProcessBatchRe
 	}
 }
 
+// GetLastPrediction возвращает последнее предсказание для сессии
+func (h *Hub) GetLastPrediction(sessionID string) float64 {
+	h.predMu.RLock()
+	defer h.predMu.RUnlock()
+	return h.lastPredictions[sessionID]
+}
+
+// UpdatePrediction обновляет последнее предсказание для сессии
+func (h *Hub) UpdatePrediction(sessionID string, prediction float64) {
+	h.predMu.Lock()
+	defer h.predMu.Unlock()
+	h.lastPredictions[sessionID] = prediction
+	log.Printf("[WEBSOCKET] Updated prediction for session %s: %.4f", sessionID, prediction)
+}
+
 // convertResponseToProcessedData конвертирует gRPC ответ в JSON структуру нового формата
 func (h *Hub) convertResponseToProcessedData(response *featureextractorv1.ProcessBatchResponse) *ProcessedData {
 	// Конвертируем отфильтрованные BPM данные в формат {time_sec: [], value: []}
@@ -230,9 +250,12 @@ func (h *Hub) convertResponseToProcessedData(response *featureextractorv1.Proces
 	}
 
 	// Создаем структуру данных в новом формате
+	// Получаем последнее предсказание для этой сессии
+	prediction := h.GetLastPrediction(response.SessionId)
+
 	data := &ProcessedData{
 		Message:    "Done",
-		Prediction: 0.0, // Заглушка для ML модели
+		Prediction: prediction, // Реальный предикт из ML сервиса
 		SessionID:  response.SessionId,
 		Status:     "processed",
 		Records: RecordsData{
@@ -346,6 +369,29 @@ func (h *Hub) ProcessedDataConsumer(ctx context.Context, processedBatchChan <-ch
 				return
 			}
 			h.BroadcastProcessedData(response)
+		}
+	}
+}
+
+// PredictionConsumer обрабатывает предсказания из ML сервиса
+func (h *Hub) PredictionConsumer(ctx context.Context, predictionChan <-chan interface{}) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case prediction, ok := <-predictionChan:
+			if !ok {
+				return
+			}
+			// Обновляем последнее предсказание для сессии
+			// prediction должен иметь поля SessionId и Prediction
+			// Используем type assertion для доступа к полям
+			if pred, ok := prediction.(interface {
+				GetSessionId() string
+				GetPrediction() float64
+			}); ok {
+				h.UpdatePrediction(pred.GetSessionId(), pred.GetPrediction())
+			}
 		}
 	}
 }

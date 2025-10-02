@@ -30,6 +30,10 @@ type Config struct {
 
 	// Session settings
 	SessionDataTTLSeconds int
+
+	// External services
+	FeatureExtractorAddr string
+	MLServiceAddr        string
 }
 
 // Load загружает конфигурацию из переменных окружения с дефолтными значениями
@@ -54,6 +58,10 @@ func Load() *Config {
 
 		// Session
 		SessionDataTTLSeconds: getEnvInt("SESSION_DATA_TTL_SECONDS", 86400), // 24 часа по умолчанию
+
+		// External services
+		FeatureExtractorAddr: getEnvString("FEATURE_EXTRACTOR_ADDR", "feature-extractor:50052"),
+		MLServiceAddr:        getEnvString("ML_SERVICE_ADDR", "ml-service:50053"),
 	}
 }
 

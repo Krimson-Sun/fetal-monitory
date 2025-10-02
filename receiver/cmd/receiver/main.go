@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
+	featureextractorv1 "github.com/Krimson/fetal-monitory/proto/feature_extractor"
 	telemetryv1 "github.com/Krimson/fetal-monitory/proto/telemetry"
 	"github.com/Krimson/fetal-monitory/receiver/internal/batch"
 	"github.com/Krimson/fetal-monitory/receiver/internal/config"
@@ -91,12 +92,18 @@ func main() {
 	go wsHub.Run()
 
 	// Создаем Feature Extractor Sink с интеграцией Session Manager
-	featureExtractorAddr := "feature-extractor:50052" // Docker service name
-	featureSink, err := batch.NewFeatureExtractorSinkWithSession(featureExtractorAddr, sessionManager)
+	featureSink, err := batch.NewFeatureExtractorSinkWithSession(cfg.FeatureExtractorAddr, sessionManager)
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to create feature extractor sink: %v", err)
 	}
 	defer featureSink.Close()
+
+	// Создаем ML Service Sink
+	mlSink, err := batch.NewMLServiceSink(cfg.MLServiceAddr)
+	if err != nil {
+		log.Fatalf("[FATAL] Failed to create ML service sink: %v", err)
+	}
+	defer mlSink.Close()
 
 	// Создаем композитный sink (логирование + feature extraction)
 	logSink := &batch.LogSink{}
@@ -104,10 +111,49 @@ func main() {
 
 	batcher := batch.NewBatcher(cfg, compositeSink)
 
-	// Запускаем обработчик обработанных данных из feature extractor
+	// Запускаем обработчики данных
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go wsHub.ProcessedDataConsumer(ctx, featureSink.GetProcessedBatchChannel())
+
+	// Обработчик признаков из feature extractor
+	// Он отправляет признаки и в WebSocket и в ML сервис
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case features, ok := <-featureSink.GetProcessedBatchChannel():
+				if !ok {
+					return
+				}
+				// 1. Отправляем в WebSocket
+				wsHub.BroadcastProcessedData(features)
+
+				// 2. Отправляем признаки в ML сервис (асинхронно, не блокируем)
+				go func(f *featureextractorv1.ProcessBatchResponse) {
+					if err := mlSink.ConsumeFeatures(ctx, f); err != nil {
+						log.Printf("[ERROR] Failed to send features to ML service: %v", err)
+					}
+				}(features)
+			}
+		}
+	}()
+
+	// Обработчик предсказаний из ML сервиса для обновления Hub
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case prediction, ok := <-mlSink.GetPredictionChannel():
+				if !ok {
+					return
+				}
+				// Обновляем предсказание в Hub (оно будет использовано в следующем WebSocket сообщении)
+				wsHub.UpdatePrediction(prediction.SessionId, prediction.Prediction)
+			}
+		}
+	}()
 
 	// Настраиваем gRPC сервер
 	grpcServer := grpc.NewServer()
