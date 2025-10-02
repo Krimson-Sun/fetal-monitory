@@ -1,4 +1,6 @@
-# Архитектурная диаграмма системы
+# [Архитектурная диаграмма системы](https://miro.com/welcomeonboard/V2NQWVU0NGd0YUEvakpBNlE3R3U4UnJhRDd6cEZFL1BwSkc2V3pWVUEwTUJBRnZZQ2ppNFh4OHVGS1FsaGFyRXdoUVFYZlJQaFNLdVVDaWp4amhxMEYwY3VlQUY4c2dIU283ekxzbWZjTkl0MHFyL2tvVEJyNjU3M0hMQzFXUC9yVmtkMG5hNDA3dVlncnBvRVB2ZXBnPT0hdjE=?share_link_id=460498341542)
+
+![alt text](architecture.png)
 
 ## Общая схема
 Система представляет собой модульную архитектуру, где фронтенд взаимодействует с бэкендом через REST API, а бэкенд-сервисы обмениваются данными через gRPC. Это позволяет разделить задачи обработки данных в реальном времени и оффлайн-анализа архивных записей, обеспечивая высокую производительность и масштабируемость.
