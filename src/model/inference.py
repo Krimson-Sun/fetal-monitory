@@ -55,6 +55,7 @@ class ClassifierModel(nn.Module):
                 "contractions",
                 "stvs",
                 "ltvs",
+                "time_span_sec"
             ]
 
             pred_df = df.drop(columns=columns_to_drop, error="ignore")

@@ -21,6 +21,7 @@ def prepare_data(features_df, test_size=0.1, random_state=42):
             "contractions",
             "stvs",
             "ltvs",
+            "time_span_sec"
         ]
     )
     y = features_df["target"]
@@ -33,7 +34,8 @@ def prepare_data(features_df, test_size=0.1, random_state=42):
 def catboost_pipeline(features_df):
     print("Подготовка данных...")
     X, y, X_final_test, y_final_test = prepare_data(features_df)
-
+    X.to_csv("gt_X_train.csv", index=False)
+    y.to_csv("gt_y_train.csv", index=False)
     clfs = []
     scores = []
     auc_scores = []
