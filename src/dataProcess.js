@@ -1,11 +1,18 @@
 import { Chart } from "chart.js/auto";
 import zoomPlugin from 'chartjs-plugin-zoom';
+import { METRIC_LIMITS } from "./metricNorm";
+
+const METRIC_LIST = ['stv', 'ltv', 'baseline_heart_rate', 'total_decelerations', 'late_decelerations',
+  'late_deceleration_ratio', 'total_accelerations', 'accel_decel_ratio', 'total_contractions', 
+]
 
 // Регистрируем плагин
 Chart.register(zoomPlugin);
 
 let hrChart;
 let uterineChart;
+
+let fa = false
 
 export function resetCharts(){
       if (hrChart) hrChart.destroy();
@@ -22,7 +29,7 @@ export function resetCharts(){
               borderColor: '#0096A6',
               borderWidth: 2.5,
               pointRadius: 0,
-              yAxisID: 'y'
+              yAxisID: 'y',
             },
             {
               label: 'Ускорения',
@@ -47,7 +54,16 @@ export function resetCharts(){
               pointStyle: 'triangle',
               yAxisID: 'y',
               showLine: false
-            }
+            },
+            {
+              label: 'БЧСС',
+              data: [],
+              borderColor: '#616161ff',
+              borderWidth: 2.5,
+              pointRadius: 0,
+              yAxisID: 'y',
+              borderDash: [6, 6]
+            },
           ]
         },
         options: {
@@ -156,7 +172,19 @@ export function resetCharts(){
               borderWidth: 2.5,
               pointRadius: 0,
               yAxisID: 'y'
-            }
+            },
+            {
+              label: 'Схватки',
+              data: [],
+              borderColor: '#4CAF50',
+              borderWidth: 2,
+              pointRadius: 5,
+              pointBackgroundColor: '#4CAF50',
+              pointBorderWidth: 1,
+              pointStyle: 'triangle',
+              yAxisID: 'y',
+              showLine: false
+            },
           ]
         },
         options: {
@@ -248,7 +276,6 @@ export function resetCharts(){
 
 export function updateData(initDate) {
     const now = Date.now() - initDate;
-    console.log(now)
 
     // Обновление ЧСС
     const hrValue = 130 + Math.random() * 20;
@@ -331,54 +358,119 @@ export function updateData(initDate) {
         document.getElementById('status-badge').textContent = 'Экстренное вмешательство';
     }
 
-    // Обновление динамики показателей
-    // trendChart.data.datasets[0].data.push({ x: now, y: stv });
-    // trendChart.data.datasets[1].data.push({ x: now, y: lateDecel });
-    // trendChart.data.datasets[2].data.push({ x: now, y: accelerations });
-
-    // Ограничение данных для динамики
-    // const trendMaxPoints = 300;
-    // if (trendChart.data.datasets[0].data.length > trendMaxPoints) {
-    //   trendChart.data.datasets[0].data = trendChart.data.datasets[0].data.slice(-trendMaxPoints);
-    //   trendChart.data.datasets[1].data = trendChart.data.datasets[1].data.slice(-trendMaxPoints);
-    //   trendChart.data.datasets[2].data = trendChart.data.datasets[2].data.slice(-trendMaxPoints);
-        
-    //   trendChart.options.scales.x.min = trendChart.data.datasets[0].data[0].x;
-    //   trendChart.options.scales.x.max = now;
-    // }
-
     // Обновление всех графиков
     hrChart.update('none');
     uterineChart.update('none');
     //trendChart.update('none');
-    }
+}
 
     // Обновление статуса метрик
-function updateMetricStatus(id, value) {
+function updateMetric(id, value, parser=null) {
+    const valueField = document.getElementById(`${id}-value`);
+    if (!valueField) return;
+    const parsed = parser?parser(value):value
+    valueField.textContent = parsed? parsed:'-';
     const element = document.getElementById(`${id}-status`);
     if (!element) return;
+    element.className = `metric-status metric-status-${parsed?METRIC_LIMITS[id](value):'gray'}`;
+}
 
-    if (id === 'stv' || id === 'ltv') {
-        if (value >= 6 && value <= 9 && id === 'stv') {
-        element.className = 'metric-status metric-status-green';
-        } else if (value >= 5 && value <= 25 && id === 'ltv') {
-        element.className = 'metric-status metric-status-green';
-        } else {
-        element.className = 'metric-status metric-status-red';
-        }
-    } else if (id === 'late-decel') {
-        if (value < 5) {
-        element.className = 'metric-status metric-status-green';
-        } else if (value < 10) {
-        element.className = 'metric-status metric-status-yellow';
-        } else {
-        element.className = 'metric-status metric-status-red';
-        }
-    } else if (id === 'accelerations') {
-        if (value >= 2) {
-        element.className = 'metric-status metric-status-green';
-        } else {
-        element.className = 'metric-status metric-status-yellow';
-        }
-    }
+
+export function setDataToCharts(data){
+  resetCharts()
+
+  const d = data['records']
+  let min_bpm = 1e10
+  let max_bpm = -1e10
+  let min_uc = 1e10
+  let max_uc = -1e10
+
+  for (let i=0; i<Math.min(d['filtered_bpm_batch']['time_sec'].length, d['filtered_bpm_batch']['value'].length); i++){
+    hrChart.data.datasets[0].data.push({x:d['filtered_bpm_batch']['time_sec'][i],y: d['filtered_bpm_batch']['value'][i]})
+    if (d['filtered_bpm_batch']['value'][i]>max_bpm) max_bpm = d['filtered_bpm_batch']['value'][i]
+    if (d['filtered_bpm_batch']['value'][i]<min_bpm) min_bpm = d['filtered_bpm_batch']['value'][i]
+  }
+
+  for (let i=0; i<Math.min(d['filtered_uterus_batch']['time_sec'].length, d['filtered_uterus_batch']['value'].length); i++){
+    uterineChart.data.datasets[0].data.push({x:d['filtered_uterus_batch']['time_sec'][i],y: d['filtered_uterus_batch']['value'][i]})
+    if (d['filtered_uterus_batch']['value'][i]>max_uc) max_uc = d['filtered_uterus_batch']['value'][i]
+    if (d['filtered_uterus_batch']['value'][i]<min_uc) min_uc = d['filtered_uterus_batch']['value'][i]
+  }
+
+  let meanContAmplitude = 0;
+
+  for (let i=0; i<d['contractions'].length; i++){
+    let contraction = d['contractions'][i]
+    uterineChart.data.datasets[1].data.push({
+      x: uterineChart.data.datasets[0].data[contraction['start']].x,
+      y: uterineChart.data.datasets[0].data[contraction['start']].y,
+    })
+    meanContAmplitude += contraction['amplitude']/d['contractions'].length;
+  }
+
+  for (let i=0; i<d['accelerations'].length; i++){
+    let accel = d['accelerations'][i]
+    hrChart.data.datasets[1].data.push({
+      x: hrChart.data.datasets[0].data[accel['start']].x,
+      y: hrChart.data.datasets[0].data[accel['start']].y,
+    })
+  }
+
+  for (let i=0; i<d['decelerations'].length; i++){
+    let accel = d['decelerations'][i]
+    hrChart.data.datasets[2].data.push({
+      x: hrChart.data.datasets[0].data[accel['start']].x,
+      y: hrChart.data.datasets[0].data[accel['start']].y,
+    })
+  }
+
+  const min_time = Math.min(hrChart.data.datasets[0].data[0].x,
+                      uterineChart.data.datasets[0].data[0].x);
+  const max_time = Math.max(hrChart.data.datasets[0].data[hrChart.data.datasets[0].data.length-1].x,
+                      uterineChart.data.datasets[0].data[hrChart.data.datasets[0].data.length-1].x);
+
+  hrChart.options.scales.x.min = min_time;
+  hrChart.options.scales.x.max = max_time;
+
+  hrChart.options.scales.y.min = min_bpm - 2;
+  hrChart.options.scales.y.max = max_bpm + 2;
+  uterineChart.options.scales.y.min = min_uc - 2;
+  uterineChart.options.scales.y.max = max_uc + 2;
+
+  // Обновление метрик
+  const stv = d['stv'];
+  const ltv = d['ltv'];
+  const lateDecel = d['late_deceleration_ratio']*100;
+  const baseline = d['baseline_heart_rate'];
+
+  hrChart.data.datasets[3].data = [
+    {x:hrChart.data.datasets[0].data[0].x, y:baseline},
+    {x:hrChart.data.datasets[0].data[hrChart.data.datasets[0].data.length-1].x, y: baseline}
+  ]
+
+  updateMetric('baseline', baseline, Math.round)
+  updateMetric('stv', stv, (value)=>value == 0? null:value.toFixed(1))
+  updateMetric('ltv', ltv, (value)=>value == 0? null:value.toFixed(1))
+  updateMetric('late-decel-value', lateDecel, (value)=> d['total_decelerations'] == 0? null:`${value.toFixed(1)}%`)
+  updateMetric('accelerations-rate', (d['total_accelerations']*60000 / (max_time-min_time)).toFixed(0))
+  updateMetric('mean-contractions', meanContAmplitude, (value)=>value.toFixed(0))
+  
+  document.getElementById('accelerations-value').textContent = d['total_accelerations'];
+  document.getElementById('decelerations-value').textContent = d['total_decelerations'];
+  document.getElementById('contractions-value').textContent = d['total_contractions'];
+
+  document.getElementById('forecast-value').textContent = `${(data['prediction']*100).toFixed(0)}%`;
+  const predictionStatus = METRIC_LIMITS['prediction'](data['prediction'])
+  document.getElementById('forecast-value').className = `forecast-value forecast-${predictionStatus}`;
+  document.getElementById('status-badge').className = `status-badge status-${predictionStatus}`;
+  document.getElementById('status-badge').textContent = 
+      predictionStatus == 'green'?'Все в порядке':predictionStatus == 'yellow'? 'Требуется внимание':'Риск осложнений';
+  // // Обновление статуса метрик
+  // updateMetricStatus('stv', stv);
+  // updateMetricStatus('ltv', ltv);
+  // updateMetricStatus('late-decel', lateDecel);
+  // updateMetricStatus('accelerations', accelerations);
+
+  uterineChart.update()
+  hrChart.update()
 }

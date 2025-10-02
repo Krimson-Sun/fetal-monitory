@@ -45,19 +45,10 @@ body {
 .title {
   font-size: 20px;
   font-weight:normal;
-  color: #000000;
-}
-
-.status-indicator {
-  display: none;
-  gap: 15px;
-  align-items: center;
+  /* color: #000000; */
 }
 
 .status-badge {
-  position: fixed;
-  bottom: 50px;
-  right: 50px;
   padding: 8px 15px;
   border-radius: 20px;
   font-weight: bold;
@@ -72,7 +63,7 @@ body {
 
 .status-yellow {
   background-color: var(--yellow);
-  color: var(--dark-gray);
+  color: var(--white);
 }
 
 .status-red {
@@ -168,6 +159,10 @@ body {
   height: 12px;
   border-radius: 50%;
   margin-top: 5px;
+}
+
+.metric-status-gray {
+  background-color: rgb(200, 200, 200);
 }
 
 .metric-status-green {
@@ -353,6 +348,42 @@ body {
 
 .alert-pulse {
   animation: pulse 1.5s infinite;
+}
+
+#more-metric-opener{
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#more-metric-opener:hover{
+  color: var(--blue);
+}
+
+#more-metric-opener:active{
+  transform: scale(0.99);
+}
+
+#triangle{
+  transition: all 0.2s ease-in-out;
+}
+
+.app-footer {
+  /* margin-top: 50px; */
+  color: var(--gray);
+  padding: 5px 0;
+  text-align: center;
+  font-size: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-content {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
 }
 
 @keyframes pulse {

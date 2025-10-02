@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Итэлма - Предиктивная аналитика физиологических данных</title>
+  <title>Итэлма | Предиктивная аналитика физиологических данных</title>
   <link rel="stylesheet" href="src/styles.css">
   <link rel="stylesheet" href="src/inputFormStyle.css">
 </head>
 <body>
   <div class="dashboard">
     <div class="header">
-      <img src="./logo-cropped.svg" alt="Итэлма" style="height: 100%;"/>
-      <div class="title">| Предиктивная аналитика физиологических данных</div>
+      <img src="./logo-cropped.svg" alt="Итэлма" style="height: 100%;" id="logo"/>
+      <div class="title" style="color:black">| Предиктивная аналитика физиологических данных</div>
     </div>
     
     <div class="main-content disabled" id="main-content">
@@ -38,47 +38,113 @@
             </div>
             <div class="dashboard-legend">
               <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>Сокращения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Схватки</div>
             </div>
           </div>
         </div>
       </div>
       
       <div class="right-panel">
+          <div class="card">
+          <div class="card-header" style="margin: 0;">
+            <div>Результат анализа:</div>
+              <div class="status-badge status-green" id="status-badge">Норма</div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header">Ключевые метрики</div>
           <div class="card-content">
+            <div class="dashboard-legend" >
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Норма</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #FFC107;"></div>Повышенный риск</div>
+            </div>
+            <div class="dashboard-legend" >
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Отклонение</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: rgb(200, 200, 200);"></div>Данных недостаточно</div>
+            </div>
+
             <div class="metrics-grid">
               <div class="metric-card">
-                <div class="metric-label">STV (мс)</div>
-                <div class="metric-value" id="stv-value">7.2</div>
-                <div class="metric-status metric-status-green"></div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">LTV (мс)</div>
-                <div class="metric-value" id="ltv-value">12.5</div>
-                <div class="metric-status metric-status-green"></div>
+                <div class="metric-label">БЧСС (уд/мин)</div>
+                <div class="metric-value" id="baseline-value">-</div>
+                <div id = "baseline-status" class="metric-status metric-status-green"></div>
               </div>
               <div class="metric-card">
                 <div class="metric-label">Поздние децелерации</div>
-                <div class="metric-value" id="late-decel-value">0%</div>
-                <div class="metric-status metric-status-green"></div>
+                <div class="metric-value" id="late-decel-value">-</div>
+                <div class="metric-status metric-status-green" id="late-decel-status"></div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Ускорения за 10 мин</div>
-                <div class="metric-value" id="accelerations-value">4</div>
-                <div class="metric-status metric-status-green"></div>
+                <div class="metric-label">STV (мс)</div>
+                <div class="metric-value" id="stv-value">-</div>
+                <div class="metric-status metric-status-green" id="stv-status"></div>
               </div>
+              <div class="metric-card">
+                <div class="metric-label">LTV (мс)</div>
+                <div class="metric-value" id="ltv-value">-</div>
+                <div class="metric-status metric-status-green" id="ltv-status"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Средняя амлитуда схваток</div>
+                <div class="metric-value" id="mean-contractions-amplitude-value">-</div>
+                <div class="metric-status metric-status-green" id="mean-contractions-amplitude-status"></div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Количество акселераций за 10 мин</div>
+                <div class="metric-value" id="accelerations-rate-value">-</div>
+                <div class="metric-status metric-status-green" id="accelerations-rate-status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div class="header" id="more-metric-opener">
+          <div class="triangle" id="triangle" style="text-decoration: none;">
+            🞂
+          </div>
+          <div class="title"><b>Больше данных</b></div>
+      </div>
+    
+      <div class="main-content disabled" id="second-content" style="display: none;">
+      <div class="left-panel">
+        <div class="card">
+          <div class="card-header">График 1</div>
+          <div class="card-content">
+            <div class="chart-container">
+              <canvas  width="500" height="100"></canvas>
+            </div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>ЧСС</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Ускорения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #F44336;"></div>Децелерации</div>
             </div>
           </div>
         </div>
         
         <div class="card">
+          <div class="card-header">График 2</div>
+          <div class="card-content">
+            <div class="chart-container">
+              <canvas  width="500" height="100"></canvas>
+            </div>
+            <div class="dashboard-legend">
+              <div class="legend-item"><div class="legend-color" style="background-color: #0096A6;"></div>Сокращения</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Схватки</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+          <div class="card">
           <div class="card-header">
-            <div>Вероятность гипоксии</div>
+            <div>Вероятность осложнений</div>
             <div class="forecast-value forecast-green" id="forecast-value">0%</div>
           </div>
           <div class="card-content">
-            <!-- <div class="forecast-recommendation">Наблюдение</div> -->
             <div class="dashboard-legend">
               <div class="legend-item"><div class="legend-color" style="background-color: #4CAF50;"></div>Норма</div>
               <div class="legend-item"><div class="legend-color" style="background-color: #FFC107;"></div>Повышенный риск</div>
@@ -86,18 +152,34 @@
             </div>
           </div>
         </div>
-        
+
         <div class="card">
-          <div class="card-header">Динамика показателей</div>
+          <div class="card-header">Прочие метрики</div>
           <div class="card-content">
-            <canvas id="trendChart"></canvas>
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">Всего схваток</div>
+                <div class="metric-value" id="contractions-value">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Всего акселераций</div>
+                <div class="metric-value" id="accelerations-value">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Всего децелераций</div>
+                <div class="metric-value" id="decelerations-value">-</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="status-indicator">
-      <div class="status-badge status-green" id="status-badge">Все в порядке</div>
+
+      <footer class="app-footer">
+        <div class="footer-content">
+          Разработано командой «пАнекА» в рамках хакатона «Лидеры цифровой трансформации»
+        </div>
+      </footer>
   </div>
   
     <button class="ctg-recording-button reset hidden" id="reset-btn" title="Начать новое наблюдение">
@@ -168,7 +250,6 @@
       </div>
     </div>
   </div>
-
   <script src="src/script.js" defer type="module"></script>
 </body>
 </html>

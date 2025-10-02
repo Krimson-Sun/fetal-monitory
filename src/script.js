@@ -3,6 +3,8 @@ import '@fontsource/montserrat/700.css';
 import { resetRecording, startRecording } from "./recording";
 import { resetCharts, updateData } from './dataProcess';
 import {setInputAlertEventListeners} from './inputForm'
+import { setDataToCharts } from './dataProcess';
+import { EXAMPLE_DATA } from './exampleData';
 
 
 // Инициализация графиков
@@ -125,6 +127,22 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('recording-btn').onclick = startRecording
   document.getElementById('reset-btn').onclick = resetRecording
   // Инициализация начальных данных
-  updateData();
+  //updateData();
   setInputAlertEventListeners()
+  document.getElementById('more-metric-opener').onclick = ()=>{
+    const triangle = document.getElementById('triangle')
+    if (triangle.style.transform == 'rotate(90deg)'){
+      triangle.style.transform = 'rotate(0deg)'
+      document.getElementById('second-content').style.display = "none"
+    }
+    else{
+      triangle.style.transform = 'rotate(90deg)'
+      document.getElementById('second-content').style.display = ""
+    }
+  }
+
+  document.getElementById('logo').onclick = ()=>{
+    console.log('dev click');
+    setDataToCharts(EXAMPLE_DATA);
+    document.getElementById('main-content').className = 'main-content'}
 });
