@@ -1,6 +1,9 @@
+import { setDataToCharts } from "./dataProcess";
+import { setDelFunction, setSaveDelBtns, setSaveFunction} from "./recording";
+
 let bpmFile = null;
 let ucFile = null;
-const endpoint = 'http://localhost:8080/upload-dual'
+const baseUrl = 'http://localhost:8080'
 
 const changeBpmFile = (e) => {
       if (e.target.files.length > 0 && e.target.files[0] != '') {  
@@ -85,7 +88,7 @@ export async function sendFiles() {
         formData.append('uc_file', ucFile);
         formData.append('session_id', 'session_' + Date.now());
 
-        const response = await fetch(endpoint, {
+        const response = await fetch(`${baseUrl}/upload-dual`, {
             method: 'POST',
             body: formData
         });
@@ -97,6 +100,26 @@ export async function sendFiles() {
 
         const data = await response.json();
         console.log('Данные успешно обработаны:', data)
+        setDelFunction(()=>
+          fetch(`${baseUrl}/decision`, {
+            method: 'POST',
+            body:JSON.stringify({
+              session_id: data['session_id'],
+              save:false
+            })
+          })
+        )
+        setSaveFunction(()=>
+          fetch(`${baseUrl}/decision`, {
+            method: 'POST',
+            body:JSON.stringify({
+              session_id: data['session_id'],
+              save: true
+            })
+          })
+        )
+
+        setDataToCharts(data)
         closeFileImportAlert()
     } catch (error) {
         alert(`

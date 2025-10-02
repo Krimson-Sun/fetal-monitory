@@ -1,18 +1,97 @@
-import { resetCharts, updateData } from "./dataProcess";
+import { resetCharts, updateData, updateOnlineData } from "./dataProcess";
 
 let wasSaved = false;
+let delFunction = ()=>{};
+let saveFunction = ()=>{};
+let stopFunction = ()=>{};
 
-export function startRecording(){
+export async function startRecording(){
     resetCharts();
-    wasSaved = false;
-    const initDate = Date.now()
-    let interval = setInterval(()=>{updateData(initDate)}, 100);
-    console.log('click!');
-    setStopBtn(interval)
-    hideBtn('input-btn', 'ctg-recording-button input')
+    try{
+        const response = await fetch(`http://localhost:8080/api/sessions`, {
+            method: 'POST',
+            body:JSON.stringify({
+                "patient_id": "patient-001",
+                "doctor_id": "dr-ivanov",
+                "facility_id": "hospital-1",
+                "notes": "Плановое обследование"
+            })
+        })
 
-    const mainContent = document.getElementById('main-content');
-    mainContent.className = "main-content";
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('Сессия успешно создана:', data)
+
+        wasSaved = false
+
+        const sessionId = data['session']['id']; // ID из POST /api/sessions
+        const ws = new WebSocket(`ws://localhost:8080/ws?session_id=${sessionId}`);
+
+        ws.onopen = () => {
+            console.log('Подключено к WebSocket');
+        };
+
+        ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('Получены данные:', data);
+        
+        // Обновить графики
+        updateOnlineData(data.records);
+        };
+
+        ws.onerror = (error) => {
+        console.error('Ошибка WebSocket:', error);
+        };
+
+        ws.onclose = () => {
+        console.log('WebSocket закрыт');
+        };
+
+        setDelFunction(()=>
+          fetch(`http://localhost:8080/api/sessions/${data['session']['id']}`, {
+            method: 'DELETE',
+          })
+        )
+        setSaveFunction(()=>
+          fetch(`http://localhost:8080/api/sessions/${data['session']['id']}/save`, {
+            method: 'POST',
+            body:JSON.stringify({
+              notes: `Timestamp: ${Date.now()}`
+            })
+          })
+        )
+        setStopFunction(()=>{
+            ws.close()
+            return fetch(`http://localhost:8080/api/sessions/${data['session']['id']}/stop`, {
+                method: 'POST',
+            })
+            }
+        )
+
+        setStopBtn(
+            ()=>
+                stopFunction().then(()=>{
+                    console.log('Запись остановлена')
+                    setDownloadBtn()
+                    showBtn('reset-btn', 'ctg-recording-button reset');
+                })
+        )
+        hideBtn('input-btn', 'ctg-recording-button input')
+        const mainContent = document.getElementById('main-content');
+        mainContent.className = "main-content";
+
+
+
+    } catch (error) {
+        alert(`
+          Ошибка при обработке файлов\n
+          Сообщение: ${error.message}
+        `)
+    }
 }
 
 export function stopRecording(interval){
@@ -20,6 +99,11 @@ export function stopRecording(interval){
     console.log('click!');
     setDownloadBtn();
 
+    showBtn('reset-btn', 'ctg-recording-button reset');
+}
+
+export function setSaveDelBtns(){
+    setDownloadBtn();
     showBtn('reset-btn', 'ctg-recording-button reset');
 }
 
@@ -32,13 +116,15 @@ export function resetRecording(){
 
     hideBtn('reset-btn', 'ctg-recording-button reset');
     showBtn('input-btn', 'ctg-recording-button input');
+    delFunction();
     setPlayBtn();
 }
 
 export function saveRecording(){
-    prompt('Введите название для записи')
-    alert('Запись сохранена!')
-    wasSaved = true;
+    saveFunction().then((result)=>{
+        alert('Запись успешно сохранена');
+        wasSaved = true
+    })
 }
 
 function setPlayBtn(){
@@ -54,7 +140,7 @@ function setPlayBtn(){
     btn.title = "Начать наблюдение"
     btn.onclick = startRecording;
 }
-function setStopBtn(interval){
+function setStopBtn(call){
     const btn = document.getElementById('recording-btn');
 
     btn.innerHTML = `
@@ -65,7 +151,7 @@ function setStopBtn(interval){
       </span>`
     btn.className = "ctg-recording-button recording";
     btn.title = "Остановить запись"
-    btn.onclick = ()=>stopRecording(interval);
+    btn.onclick = call;
 }
 function setDownloadBtn(){
     const btn = document.getElementById('recording-btn');
@@ -93,4 +179,16 @@ function showBtn(id, className){
     const btn=document.getElementById(id);
     btn.className = className;
     btn.disabled = false
+}
+
+export function setDelFunction(call){
+    delFunction = call
+}
+
+export function setSaveFunction(call){
+    saveFunction = call
+}
+
+export function setStopFunction(call){
+    stopFunction = call
 }
