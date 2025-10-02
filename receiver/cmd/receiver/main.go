@@ -106,6 +106,9 @@ func main() {
 	// Настраиваем HTTP сервер с роутером
 	router := mux.NewRouter()
 
+	// CORS middleware (должен быть первым!)
+	router.Use(corsMiddleware)
+
 	// WebSocket endpoint
 	router.HandleFunc("/ws", wsHub.HandleWebSocket)
 
@@ -118,9 +121,6 @@ func main() {
 	// Session management API
 	sessionHandler := session.NewHTTPHandler(sessionManager)
 	sessionHandler.RegisterRoutes(router)
-
-	// CORS middleware (для разработки)
-	router.Use(corsMiddleware)
 
 	httpPort := cfg.HTTPPort
 	log.Printf("[INFO] HTTP server (WebSocket + API) listening on :%s", httpPort)
