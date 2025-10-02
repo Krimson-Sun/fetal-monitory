@@ -45,8 +45,8 @@ func (r *RedisStub) SaveSession(ctx context.Context, sessionID string, session *
 	}()
 
 	fmt.Printf("✅ RedisStub: Session %s saved (TTL: %v)\n", sessionID, r.ttl)
-	fmt.Printf("   Records: %d FHR points, %d UC points, Prediction: %f\n", len(session.Records.FetalHeartRate.Time),
-		len(session.Records.UterineContractions.Time), session.Prediction)
+	fmt.Printf("   Records: %d FHR points, %d UC points, Prediction: %f\n", len(session.Records.FetalHeartRate.TimeSec),
+		len(session.Records.UterineContractions.TimeSec), session.Prediction)
 	return nil
 }
 
@@ -65,8 +65,8 @@ func (r *RedisStub) GetSession(ctx context.Context, sessionID string) (*models.M
 	}
 
 	fmt.Printf("✅ RedisStub: Session %s retrieved\n", sessionID)
-	fmt.Printf("   Records: %d FHR points, %d UC points, Prediction: %f\n", len(session.Records.FetalHeartRate.Time),
-		len(session.Records.UterineContractions.Time), session.Prediction)
+	fmt.Printf("   Records: %d FHR points, %d UC points, Prediction: %f\n", len(session.Records.FetalHeartRate.TimeSec),
+		len(session.Records.UterineContractions.TimeSec), session.Prediction)
 	return &session, nil
 }
 

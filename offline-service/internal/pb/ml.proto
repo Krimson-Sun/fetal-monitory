@@ -10,7 +10,7 @@ service MLService {
 }
 
 message PredictRequest {
-  common.MedicalData medical_data = 1;
+  common.MedicalRecord medical_record = 1;
   string session_id = 2;
 }
 

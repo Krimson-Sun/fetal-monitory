@@ -3,9 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
-	"time"
-
 	"offline-service/internal/service"
 	"offline-service/pkg/models"
 )
@@ -19,51 +18,6 @@ func NewHTTPHandler(medicalService *service.MedicalService) *HTTPHandler {
 		medicalService: medicalService,
 	}
 }
-
-//func (h *HTTPHandler) UploadCSV(w http.ResponseWriter, r *http.Request) {
-//	if r.Method != http.MethodPost {
-//		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
-//		return
-//	}
-//
-//	// Парсим multipart form
-//	if err := r.ParseMultipartForm(32 << 20); err != nil { // 32MB max memory
-//		http.Error(w, `{"error": "Failed to parse form: `+err.Error()+`"}`, http.StatusBadRequest)
-//		return
-//	}
-//
-//	file, header, err := r.FormFile("csv_file")
-//	if err != nil {
-//		http.Error(w, `{"error": "Failed to get file: `+err.Error()+`"}`, http.StatusBadRequest)
-//		return
-//	}
-//	defer file.Close()
-//
-//	fmt.Printf("Received file: %s, Size: %d\n", header.Filename, header.Size)
-//
-//	sessionID := r.FormValue("session_id")
-//	if sessionID == "" {
-//		sessionID = generateSessionID()
-//	}
-//
-//	// Обрабатываем CSV
-//	response, err := h.medicalService.ProcessCSV(r.Context(), file, sessionID)
-//	if err != nil {
-//		errorResponse := map[string]string{
-//			"error":   "Processing failed",
-//			"details": err.Error(),
-//		}
-//		w.Header().Set("Content-Type", "application/json")
-//		w.WriteHeader(http.StatusInternalServerError)
-//		json.NewEncoder(w).Encode(errorResponse)
-//		return
-//	}
-//
-//	// Возвращаем полный ответ с данными
-//	w.Header().Set("Content-Type", "application/json")
-//	w.WriteHeader(http.StatusOK)
-//	json.NewEncoder(w).Encode(response)
-//}
 
 func (h *HTTPHandler) UploadDualCSV(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -198,5 +152,5 @@ func (h *HTTPHandler) GetSessionData(w http.ResponseWriter, r *http.Request) {
 }
 
 func generateSessionID() string {
-	return fmt.Sprintf("session_%d", time.Now().UnixNano())
+	return uuid.New().String()
 }

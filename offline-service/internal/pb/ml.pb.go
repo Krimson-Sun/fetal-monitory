@@ -23,7 +23,7 @@ const (
 
 type PredictRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MedicalData   *MedicalData           `protobuf:"bytes,1,opt,name=medical_data,json=medicalData,proto3" json:"medical_data,omitempty"`
+	MedicalRecord *MedicalRecord         `protobuf:"bytes,1,opt,name=medical_record,json=medicalRecord,proto3" json:"medical_record,omitempty"`
 	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -59,9 +59,9 @@ func (*PredictRequest) Descriptor() ([]byte, []int) {
 	return file_ml_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PredictRequest) GetMedicalData() *MedicalData {
+func (x *PredictRequest) GetMedicalRecord() *MedicalRecord {
 	if x != nil {
-		return x.MedicalData
+		return x.MedicalRecord
 	}
 	return nil
 }
@@ -145,9 +145,9 @@ var File_ml_proto protoreflect.FileDescriptor
 
 const file_ml_proto_rawDesc = "" +
 	"\n" +
-	"\bml.proto\x12\x02ml\x1a\fcommon.proto\"g\n" +
-	"\x0ePredictRequest\x126\n" +
-	"\fmedical_data\x18\x01 \x01(\v2\x13.common.MedicalDataR\vmedicalData\x12\x1d\n" +
+	"\bml.proto\x12\x02ml\x1a\fcommon.proto\"m\n" +
+	"\x0ePredictRequest\x12<\n" +
+	"\x0emedical_record\x18\x01 \x01(\v2\x15.common.MedicalRecordR\rmedicalRecord\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\"\x82\x01\n" +
 	"\x0fPredictResponse\x12\x1e\n" +
@@ -177,10 +177,10 @@ var file_ml_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_ml_proto_goTypes = []any{
 	(*PredictRequest)(nil),  // 0: ml.PredictRequest
 	(*PredictResponse)(nil), // 1: ml.PredictResponse
-	(*MedicalData)(nil),     // 2: common.MedicalData
+	(*MedicalRecord)(nil),   // 2: common.MedicalRecord
 }
 var file_ml_proto_depIdxs = []int32{
-	2, // 0: ml.PredictRequest.medical_data:type_name -> common.MedicalData
+	2, // 0: ml.PredictRequest.medical_record:type_name -> common.MedicalRecord
 	0, // 1: ml.MLService.Predict:input_type -> ml.PredictRequest
 	1, // 2: ml.MLService.Predict:output_type -> ml.PredictResponse
 	2, // [2:3] is the sub-list for method output_type

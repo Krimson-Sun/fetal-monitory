@@ -22,7 +22,7 @@ const (
 )
 
 // Представление временного ряда метрики
-type TimeSeries struct {
+type MetricRecord struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeSec       []float64              `protobuf:"fixed64,1,rep,packed,name=time_sec,json=timeSec,proto3" json:"time_sec,omitempty"` // Время в секундах
 	Value         []float64              `protobuf:"fixed64,2,rep,packed,name=value,proto3" json:"value,omitempty"`                    // Значения метрики
@@ -30,20 +30,20 @@ type TimeSeries struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TimeSeries) Reset() {
-	*x = TimeSeries{}
+func (x *MetricRecord) Reset() {
+	*x = MetricRecord{}
 	mi := &file_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TimeSeries) String() string {
+func (x *MetricRecord) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TimeSeries) ProtoMessage() {}
+func (*MetricRecord) ProtoMessage() {}
 
-func (x *TimeSeries) ProtoReflect() protoreflect.Message {
+func (x *MetricRecord) ProtoReflect() protoreflect.Message {
 	mi := &file_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,19 +55,19 @@ func (x *TimeSeries) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TimeSeries.ProtoReflect.Descriptor instead.
-func (*TimeSeries) Descriptor() ([]byte, []int) {
+// Deprecated: Use MetricRecord.ProtoReflect.Descriptor instead.
+func (*MetricRecord) Descriptor() ([]byte, []int) {
 	return file_common_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *TimeSeries) GetTimeSec() []float64 {
+func (x *MetricRecord) GetTimeSec() []float64 {
 	if x != nil {
 		return x.TimeSec
 	}
 	return nil
 }
 
-func (x *TimeSeries) GetValue() []float64 {
+func (x *MetricRecord) GetValue() []float64 {
 	if x != nil {
 		return x.Value
 	}
@@ -75,28 +75,28 @@ func (x *TimeSeries) GetValue() []float64 {
 }
 
 // Медицинские данные в новом формате
-type MedicalData struct {
+type MedicalRecord struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bpm           *TimeSeries            `protobuf:"bytes,1,opt,name=bpm,proto3" json:"bpm,omitempty"`       // Сердцебиение (FHR)
-	Uterus        *TimeSeries            `protobuf:"bytes,2,opt,name=uterus,proto3" json:"uterus,omitempty"` // Сокращения матки (UC)
+	Bpm           *MetricRecord          `protobuf:"bytes,1,opt,name=bpm,proto3" json:"bpm,omitempty"`       // Сердцебиение (FHR)
+	Uterus        *MetricRecord          `protobuf:"bytes,2,opt,name=uterus,proto3" json:"uterus,omitempty"` // Сокращения матки (UC)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MedicalData) Reset() {
-	*x = MedicalData{}
+func (x *MedicalRecord) Reset() {
+	*x = MedicalRecord{}
 	mi := &file_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MedicalData) String() string {
+func (x *MedicalRecord) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MedicalData) ProtoMessage() {}
+func (*MedicalRecord) ProtoMessage() {}
 
-func (x *MedicalData) ProtoReflect() protoreflect.Message {
+func (x *MedicalRecord) ProtoReflect() protoreflect.Message {
 	mi := &file_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -108,19 +108,19 @@ func (x *MedicalData) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MedicalData.ProtoReflect.Descriptor instead.
-func (*MedicalData) Descriptor() ([]byte, []int) {
+// Deprecated: Use MedicalRecord.ProtoReflect.Descriptor instead.
+func (*MedicalRecord) Descriptor() ([]byte, []int) {
 	return file_common_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *MedicalData) GetBpm() *TimeSeries {
+func (x *MedicalRecord) GetBpm() *MetricRecord {
 	if x != nil {
 		return x.Bpm
 	}
 	return nil
 }
 
-func (x *MedicalData) GetUterus() *TimeSeries {
+func (x *MedicalRecord) GetUterus() *MetricRecord {
 	if x != nil {
 		return x.Uterus
 	}
@@ -131,14 +131,13 @@ var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
 	"\n" +
-	"\fcommon.proto\x12\x06common\"=\n" +
-	"\n" +
-	"TimeSeries\x12\x19\n" +
+	"\fcommon.proto\x12\x06common\"?\n" +
+	"\fMetricRecord\x12\x19\n" +
 	"\btime_sec\x18\x01 \x03(\x01R\atimeSec\x12\x14\n" +
-	"\x05value\x18\x02 \x03(\x01R\x05value\"_\n" +
-	"\vMedicalData\x12$\n" +
-	"\x03bpm\x18\x01 \x01(\v2\x12.common.TimeSeriesR\x03bpm\x12*\n" +
-	"\x06uterus\x18\x02 \x01(\v2\x12.common.TimeSeriesR\x06uterusB\x06Z\x04./pbb\x06proto3"
+	"\x05value\x18\x02 \x03(\x01R\x05value\"e\n" +
+	"\rMedicalRecord\x12&\n" +
+	"\x03bpm\x18\x01 \x01(\v2\x14.common.MetricRecordR\x03bpm\x12,\n" +
+	"\x06uterus\x18\x02 \x01(\v2\x14.common.MetricRecordR\x06uterusB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_common_proto_rawDescOnce sync.Once
@@ -154,12 +153,12 @@ func file_common_proto_rawDescGZIP() []byte {
 
 var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_common_proto_goTypes = []any{
-	(*TimeSeries)(nil),  // 0: common.TimeSeries
-	(*MedicalData)(nil), // 1: common.MedicalData
+	(*MetricRecord)(nil),  // 0: common.MetricRecord
+	(*MedicalRecord)(nil), // 1: common.MedicalRecord
 }
 var file_common_proto_depIdxs = []int32{
-	0, // 0: common.MedicalData.bpm:type_name -> common.TimeSeries
-	0, // 1: common.MedicalData.uterus:type_name -> common.TimeSeries
+	0, // 0: common.MedicalRecord.bpm:type_name -> common.MetricRecord
+	0, // 1: common.MedicalRecord.uterus:type_name -> common.MetricRecord
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

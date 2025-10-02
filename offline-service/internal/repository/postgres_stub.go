@@ -21,7 +21,7 @@ func NewPostgresStub() *PostgresStub {
 	}
 }
 
-func (p *PostgresStub) SaveMedicalData(ctx context.Context, session *models.MedicalSession) error {
+func (p *PostgresStub) SaveMedicalRecord(ctx context.Context, session *models.MedicalSession) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -34,8 +34,8 @@ func (p *PostgresStub) SaveMedicalData(ctx context.Context, session *models.Medi
 	// Логируем данные для отладки
 	recordsJSON, _ := json.Marshal(session.Records)
 	fmt.Printf("✅ PostgresStub: Session %s saved to database\n", session.SessionID)
-	fmt.Printf("   Records: %d FHR points, %d UC points, Prediction: %f\n", len(session.Records.FetalHeartRate.Time),
-		len(session.Records.UterineContractions.Time), session.Prediction)
+	fmt.Printf("   Records: %d FHR points, %d UC points, Prediction: %f\n", len(session.Records.FetalHeartRate.TimeSec),
+		len(session.Records.UterineContractions.TimeSec), session.Prediction)
 	fmt.Printf("   First 3 records: %s\n", string(recordsJSON)[:min(100, len(string(recordsJSON)))])
 
 	return nil
@@ -83,7 +83,7 @@ func (p *PostgresStub) GetStats() map[string]interface{} {
 
 	totalRecords := 0
 	for _, session := range p.sessions {
-		totalRecords += len(session.Records.FetalHeartRate.Time) + len(session.Records.UterineContractions.Time)
+		totalRecords += len(session.Records.FetalHeartRate.TimeSec) + len(session.Records.UterineContractions.TimeSec)
 	}
 
 	return map[string]interface{}{

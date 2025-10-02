@@ -23,7 +23,7 @@ const (
 
 type FilterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MedicalData   *MedicalData           `protobuf:"bytes,1,opt,name=medical_data,json=medicalData,proto3" json:"medical_data,omitempty"`
+	MedicalRecord *MedicalRecord         `protobuf:"bytes,1,opt,name=medical_record,json=medicalRecord,proto3" json:"medical_record,omitempty"`
 	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -59,9 +59,9 @@ func (*FilterRequest) Descriptor() ([]byte, []int) {
 	return file_filter_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *FilterRequest) GetMedicalData() *MedicalData {
+func (x *FilterRequest) GetMedicalRecord() *MedicalRecord {
 	if x != nil {
-		return x.MedicalData
+		return x.MedicalRecord
 	}
 	return nil
 }
@@ -73,19 +73,252 @@ func (x *FilterRequest) GetSessionId() string {
 	return ""
 }
 
-type FilterResponse struct {
+type Acceleration struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FilteredData  *MedicalData           `protobuf:"bytes,1,opt,name=filtered_data,json=filteredData,proto3" json:"filtered_data,omitempty"`
-	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	Start         float64                `protobuf:"fixed64,1,opt,name=start,proto3" json:"start,omitempty"`
+	End           float64                `protobuf:"fixed64,2,opt,name=end,proto3" json:"end,omitempty"`
+	Duration      float64                `protobuf:"fixed64,3,opt,name=duration,proto3" json:"duration,omitempty"`
+	Amplitude     float64                `protobuf:"fixed64,4,opt,name=amplitude,proto3" json:"amplitude,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *Acceleration) Reset() {
+	*x = Acceleration{}
+	mi := &file_filter_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Acceleration) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Acceleration) ProtoMessage() {}
+
+func (x *Acceleration) ProtoReflect() protoreflect.Message {
+	mi := &file_filter_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Acceleration.ProtoReflect.Descriptor instead.
+func (*Acceleration) Descriptor() ([]byte, []int) {
+	return file_filter_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Acceleration) GetStart() float64 {
+	if x != nil {
+		return x.Start
+	}
+	return 0
+}
+
+func (x *Acceleration) GetEnd() float64 {
+	if x != nil {
+		return x.End
+	}
+	return 0
+}
+
+func (x *Acceleration) GetDuration() float64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *Acceleration) GetAmplitude() float64 {
+	if x != nil {
+		return x.Amplitude
+	}
+	return 0
+}
+
+type Deceleration struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Start         float64                `protobuf:"fixed64,1,opt,name=start,proto3" json:"start,omitempty"`
+	End           float64                `protobuf:"fixed64,2,opt,name=end,proto3" json:"end,omitempty"`
+	Duration      float64                `protobuf:"fixed64,3,opt,name=duration,proto3" json:"duration,omitempty"`
+	Amplitude     float64                `protobuf:"fixed64,4,opt,name=amplitude,proto3" json:"amplitude,omitempty"`
+	IsLate        bool                   `protobuf:"varint,5,opt,name=is_late,json=isLate,proto3" json:"is_late,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Deceleration) Reset() {
+	*x = Deceleration{}
+	mi := &file_filter_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Deceleration) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Deceleration) ProtoMessage() {}
+
+func (x *Deceleration) ProtoReflect() protoreflect.Message {
+	mi := &file_filter_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Deceleration.ProtoReflect.Descriptor instead.
+func (*Deceleration) Descriptor() ([]byte, []int) {
+	return file_filter_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Deceleration) GetStart() float64 {
+	if x != nil {
+		return x.Start
+	}
+	return 0
+}
+
+func (x *Deceleration) GetEnd() float64 {
+	if x != nil {
+		return x.End
+	}
+	return 0
+}
+
+func (x *Deceleration) GetDuration() float64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *Deceleration) GetAmplitude() float64 {
+	if x != nil {
+		return x.Amplitude
+	}
+	return 0
+}
+
+func (x *Deceleration) GetIsLate() bool {
+	if x != nil {
+		return x.IsLate
+	}
+	return false
+}
+
+type Contraction struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Start         float64                `protobuf:"fixed64,1,opt,name=start,proto3" json:"start,omitempty"`
+	End           float64                `protobuf:"fixed64,2,opt,name=end,proto3" json:"end,omitempty"`
+	Duration      float64                `protobuf:"fixed64,3,opt,name=duration,proto3" json:"duration,omitempty"`
+	Amplitude     float64                `protobuf:"fixed64,4,opt,name=amplitude,proto3" json:"amplitude,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Contraction) Reset() {
+	*x = Contraction{}
+	mi := &file_filter_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Contraction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Contraction) ProtoMessage() {}
+
+func (x *Contraction) ProtoReflect() protoreflect.Message {
+	mi := &file_filter_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Contraction.ProtoReflect.Descriptor instead.
+func (*Contraction) Descriptor() ([]byte, []int) {
+	return file_filter_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Contraction) GetStart() float64 {
+	if x != nil {
+		return x.Start
+	}
+	return 0
+}
+
+func (x *Contraction) GetEnd() float64 {
+	if x != nil {
+		return x.End
+	}
+	return 0
+}
+
+func (x *Contraction) GetDuration() float64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *Contraction) GetAmplitude() float64 {
+	if x != nil {
+		return x.Amplitude
+	}
+	return 0
+}
+
+type FilterResponse struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Stv                   float64                `protobuf:"fixed64,1,opt,name=stv,proto3" json:"stv,omitempty"`
+	Ltv                   float64                `protobuf:"fixed64,2,opt,name=ltv,proto3" json:"ltv,omitempty"`
+	BaselineHeartRate     float64                `protobuf:"fixed64,3,opt,name=baseline_heart_rate,json=baselineHeartRate,proto3" json:"baseline_heart_rate,omitempty"`
+	Accelerations         []*Acceleration        `protobuf:"bytes,4,rep,name=accelerations,proto3" json:"accelerations,omitempty"`
+	Decelerations         []*Deceleration        `protobuf:"bytes,5,rep,name=decelerations,proto3" json:"decelerations,omitempty"`
+	Contractions          []*Contraction         `protobuf:"bytes,6,rep,name=contractions,proto3" json:"contractions,omitempty"`
+	Stvs                  []float64              `protobuf:"fixed64,7,rep,packed,name=stvs,proto3" json:"stvs,omitempty"`
+	StvsWindowDuration    float64                `protobuf:"fixed64,8,opt,name=stvs_window_duration,json=stvsWindowDuration,proto3" json:"stvs_window_duration,omitempty"`
+	Ltvs                  []float64              `protobuf:"fixed64,9,rep,packed,name=ltvs,proto3" json:"ltvs,omitempty"`
+	LtvsWindowDuration    float64                `protobuf:"fixed64,10,opt,name=ltvs_window_duration,json=ltvsWindowDuration,proto3" json:"ltvs_window_duration,omitempty"`
+	TotalDecelerations    int64                  `protobuf:"varint,11,opt,name=total_decelerations,json=totalDecelerations,proto3" json:"total_decelerations,omitempty"`
+	LateDecelerations     int64                  `protobuf:"varint,12,opt,name=late_decelerations,json=lateDecelerations,proto3" json:"late_decelerations,omitempty"`
+	LateDecelerationRatio float64                `protobuf:"fixed64,13,opt,name=late_deceleration_ratio,json=lateDecelerationRatio,proto3" json:"late_deceleration_ratio,omitempty"`
+	TotalAccelerations    int64                  `protobuf:"varint,14,opt,name=total_accelerations,json=totalAccelerations,proto3" json:"total_accelerations,omitempty"`
+	AccelDecelRatio       float64                `protobuf:"fixed64,15,opt,name=accel_decel_ratio,json=accelDecelRatio,proto3" json:"accel_decel_ratio,omitempty"`
+	TotalContractions     int64                  `protobuf:"varint,16,opt,name=total_contractions,json=totalContractions,proto3" json:"total_contractions,omitempty"`
+	StvTrend              float64                `protobuf:"fixed64,17,opt,name=stv_trend,json=stvTrend,proto3" json:"stv_trend,omitempty"`
+	BpmTrend              float64                `protobuf:"fixed64,18,opt,name=bpm_trend,json=bpmTrend,proto3" json:"bpm_trend,omitempty"`
+	DataPoints            int64                  `protobuf:"varint,19,opt,name=data_points,json=dataPoints,proto3" json:"data_points,omitempty"`
+	TimeSpanSec           float64                `protobuf:"fixed64,20,opt,name=time_span_sec,json=timeSpanSec,proto3" json:"time_span_sec,omitempty"`
+	FilteredBmpBatch      *MetricRecord          `protobuf:"bytes,21,opt,name=filtered_bmp_batch,json=filteredBmpBatch,proto3" json:"filtered_bmp_batch,omitempty"`
+	FilteredUterusBatch   *MetricRecord          `protobuf:"bytes,22,opt,name=filtered_uterus_batch,json=filteredUterusBatch,proto3" json:"filtered_uterus_batch,omitempty"`
+	SessionId             string                 `protobuf:"bytes,23,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Status                string                 `protobuf:"bytes,24,opt,name=status,proto3" json:"status,omitempty"`
+	Message               string                 `protobuf:"bytes,25,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
 func (x *FilterResponse) Reset() {
 	*x = FilterResponse{}
-	mi := &file_filter_proto_msgTypes[1]
+	mi := &file_filter_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -97,7 +330,7 @@ func (x *FilterResponse) String() string {
 func (*FilterResponse) ProtoMessage() {}
 
 func (x *FilterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_filter_proto_msgTypes[1]
+	mi := &file_filter_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -110,12 +343,159 @@ func (x *FilterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterResponse.ProtoReflect.Descriptor instead.
 func (*FilterResponse) Descriptor() ([]byte, []int) {
-	return file_filter_proto_rawDescGZIP(), []int{1}
+	return file_filter_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *FilterResponse) GetFilteredData() *MedicalData {
+func (x *FilterResponse) GetStv() float64 {
 	if x != nil {
-		return x.FilteredData
+		return x.Stv
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetLtv() float64 {
+	if x != nil {
+		return x.Ltv
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetBaselineHeartRate() float64 {
+	if x != nil {
+		return x.BaselineHeartRate
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetAccelerations() []*Acceleration {
+	if x != nil {
+		return x.Accelerations
+	}
+	return nil
+}
+
+func (x *FilterResponse) GetDecelerations() []*Deceleration {
+	if x != nil {
+		return x.Decelerations
+	}
+	return nil
+}
+
+func (x *FilterResponse) GetContractions() []*Contraction {
+	if x != nil {
+		return x.Contractions
+	}
+	return nil
+}
+
+func (x *FilterResponse) GetStvs() []float64 {
+	if x != nil {
+		return x.Stvs
+	}
+	return nil
+}
+
+func (x *FilterResponse) GetStvsWindowDuration() float64 {
+	if x != nil {
+		return x.StvsWindowDuration
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetLtvs() []float64 {
+	if x != nil {
+		return x.Ltvs
+	}
+	return nil
+}
+
+func (x *FilterResponse) GetLtvsWindowDuration() float64 {
+	if x != nil {
+		return x.LtvsWindowDuration
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetTotalDecelerations() int64 {
+	if x != nil {
+		return x.TotalDecelerations
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetLateDecelerations() int64 {
+	if x != nil {
+		return x.LateDecelerations
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetLateDecelerationRatio() float64 {
+	if x != nil {
+		return x.LateDecelerationRatio
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetTotalAccelerations() int64 {
+	if x != nil {
+		return x.TotalAccelerations
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetAccelDecelRatio() float64 {
+	if x != nil {
+		return x.AccelDecelRatio
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetTotalContractions() int64 {
+	if x != nil {
+		return x.TotalContractions
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetStvTrend() float64 {
+	if x != nil {
+		return x.StvTrend
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetBpmTrend() float64 {
+	if x != nil {
+		return x.BpmTrend
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetDataPoints() int64 {
+	if x != nil {
+		return x.DataPoints
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetTimeSpanSec() float64 {
+	if x != nil {
+		return x.TimeSpanSec
+	}
+	return 0
+}
+
+func (x *FilterResponse) GetFilteredBmpBatch() *MetricRecord {
+	if x != nil {
+		return x.FilteredBmpBatch
+	}
+	return nil
+}
+
+func (x *FilterResponse) GetFilteredUterusBatch() *MetricRecord {
+	if x != nil {
+		return x.FilteredUterusBatch
 	}
 	return nil
 }
@@ -145,17 +525,56 @@ var File_filter_proto protoreflect.FileDescriptor
 
 const file_filter_proto_rawDesc = "" +
 	"\n" +
-	"\ffilter.proto\x12\x06filter\x1a\fcommon.proto\"f\n" +
-	"\rFilterRequest\x126\n" +
-	"\fmedical_data\x18\x01 \x01(\v2\x13.common.MedicalDataR\vmedicalData\x12\x1d\n" +
+	"\ffilter.proto\x12\x06filter\x1a\fcommon.proto\"l\n" +
+	"\rFilterRequest\x12<\n" +
+	"\x0emedical_record\x18\x01 \x01(\v2\x15.common.MedicalRecordR\rmedicalRecord\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x02 \x01(\tR\tsessionId\"\x9b\x01\n" +
-	"\x0eFilterResponse\x128\n" +
-	"\rfiltered_data\x18\x01 \x01(\v2\x13.common.MedicalDataR\ffilteredData\x12\x1d\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\"p\n" +
+	"\fAcceleration\x12\x14\n" +
+	"\x05start\x18\x01 \x01(\x01R\x05start\x12\x10\n" +
+	"\x03end\x18\x02 \x01(\x01R\x03end\x12\x1a\n" +
+	"\bduration\x18\x03 \x01(\x01R\bduration\x12\x1c\n" +
+	"\tamplitude\x18\x04 \x01(\x01R\tamplitude\"\x89\x01\n" +
+	"\fDeceleration\x12\x14\n" +
+	"\x05start\x18\x01 \x01(\x01R\x05start\x12\x10\n" +
+	"\x03end\x18\x02 \x01(\x01R\x03end\x12\x1a\n" +
+	"\bduration\x18\x03 \x01(\x01R\bduration\x12\x1c\n" +
+	"\tamplitude\x18\x04 \x01(\x01R\tamplitude\x12\x17\n" +
+	"\ais_late\x18\x05 \x01(\bR\x06isLate\"o\n" +
+	"\vContraction\x12\x14\n" +
+	"\x05start\x18\x01 \x01(\x01R\x05start\x12\x10\n" +
+	"\x03end\x18\x02 \x01(\x01R\x03end\x12\x1a\n" +
+	"\bduration\x18\x03 \x01(\x01R\bduration\x12\x1c\n" +
+	"\tamplitude\x18\x04 \x01(\x01R\tamplitude\"\xa3\b\n" +
+	"\x0eFilterResponse\x12\x10\n" +
+	"\x03stv\x18\x01 \x01(\x01R\x03stv\x12\x10\n" +
+	"\x03ltv\x18\x02 \x01(\x01R\x03ltv\x12.\n" +
+	"\x13baseline_heart_rate\x18\x03 \x01(\x01R\x11baselineHeartRate\x12:\n" +
+	"\raccelerations\x18\x04 \x03(\v2\x14.filter.AccelerationR\raccelerations\x12:\n" +
+	"\rdecelerations\x18\x05 \x03(\v2\x14.filter.DecelerationR\rdecelerations\x127\n" +
+	"\fcontractions\x18\x06 \x03(\v2\x13.filter.ContractionR\fcontractions\x12\x12\n" +
+	"\x04stvs\x18\a \x03(\x01R\x04stvs\x120\n" +
+	"\x14stvs_window_duration\x18\b \x01(\x01R\x12stvsWindowDuration\x12\x12\n" +
+	"\x04ltvs\x18\t \x03(\x01R\x04ltvs\x120\n" +
+	"\x14ltvs_window_duration\x18\n" +
+	" \x01(\x01R\x12ltvsWindowDuration\x12/\n" +
+	"\x13total_decelerations\x18\v \x01(\x03R\x12totalDecelerations\x12-\n" +
+	"\x12late_decelerations\x18\f \x01(\x03R\x11lateDecelerations\x126\n" +
+	"\x17late_deceleration_ratio\x18\r \x01(\x01R\x15lateDecelerationRatio\x12/\n" +
+	"\x13total_accelerations\x18\x0e \x01(\x03R\x12totalAccelerations\x12*\n" +
+	"\x11accel_decel_ratio\x18\x0f \x01(\x01R\x0faccelDecelRatio\x12-\n" +
+	"\x12total_contractions\x18\x10 \x01(\x03R\x11totalContractions\x12\x1b\n" +
+	"\tstv_trend\x18\x11 \x01(\x01R\bstvTrend\x12\x1b\n" +
+	"\tbpm_trend\x18\x12 \x01(\x01R\bbpmTrend\x12\x1f\n" +
+	"\vdata_points\x18\x13 \x01(\x03R\n" +
+	"dataPoints\x12\"\n" +
+	"\rtime_span_sec\x18\x14 \x01(\x01R\vtimeSpanSec\x12B\n" +
+	"\x12filtered_bmp_batch\x18\x15 \x01(\v2\x14.common.MetricRecordR\x10filteredBmpBatch\x12H\n" +
+	"\x15filtered_uterus_batch\x18\x16 \x01(\v2\x14.common.MetricRecordR\x13filteredUterusBatch\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage2L\n" +
+	"session_id\x18\x17 \x01(\tR\tsessionId\x12\x16\n" +
+	"\x06status\x18\x18 \x01(\tR\x06status\x12\x18\n" +
+	"\amessage\x18\x19 \x01(\tR\amessage2L\n" +
 	"\rFilterService\x12;\n" +
 	"\n" +
 	"FilterData\x12\x15.filter.FilterRequest\x1a\x16.filter.FilterResponseB\x06Z\x04./pbb\x06proto3"
@@ -172,22 +591,30 @@ func file_filter_proto_rawDescGZIP() []byte {
 	return file_filter_proto_rawDescData
 }
 
-var file_filter_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_filter_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_filter_proto_goTypes = []any{
 	(*FilterRequest)(nil),  // 0: filter.FilterRequest
-	(*FilterResponse)(nil), // 1: filter.FilterResponse
-	(*MedicalData)(nil),    // 2: common.MedicalData
+	(*Acceleration)(nil),   // 1: filter.Acceleration
+	(*Deceleration)(nil),   // 2: filter.Deceleration
+	(*Contraction)(nil),    // 3: filter.Contraction
+	(*FilterResponse)(nil), // 4: filter.FilterResponse
+	(*MedicalRecord)(nil),  // 5: common.MedicalRecord
+	(*MetricRecord)(nil),   // 6: common.MetricRecord
 }
 var file_filter_proto_depIdxs = []int32{
-	2, // 0: filter.FilterRequest.medical_data:type_name -> common.MedicalData
-	2, // 1: filter.FilterResponse.filtered_data:type_name -> common.MedicalData
-	0, // 2: filter.FilterService.FilterData:input_type -> filter.FilterRequest
-	1, // 3: filter.FilterService.FilterData:output_type -> filter.FilterResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	5, // 0: filter.FilterRequest.medical_record:type_name -> common.MedicalRecord
+	1, // 1: filter.FilterResponse.accelerations:type_name -> filter.Acceleration
+	2, // 2: filter.FilterResponse.decelerations:type_name -> filter.Deceleration
+	3, // 3: filter.FilterResponse.contractions:type_name -> filter.Contraction
+	6, // 4: filter.FilterResponse.filtered_bmp_batch:type_name -> common.MetricRecord
+	6, // 5: filter.FilterResponse.filtered_uterus_batch:type_name -> common.MetricRecord
+	0, // 6: filter.FilterService.FilterData:input_type -> filter.FilterRequest
+	4, // 7: filter.FilterService.FilterData:output_type -> filter.FilterResponse
+	7, // [7:8] is the sub-list for method output_type
+	6, // [6:7] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_filter_proto_init() }
@@ -202,7 +629,7 @@ func file_filter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_filter_proto_rawDesc), len(file_filter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

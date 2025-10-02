@@ -52,7 +52,7 @@ func (r *RedisRepository) GetSession(ctx context.Context, sessionID string) (*mo
 	}
 
 	fmt.Printf("Session %s retrieved from Redis with %d FHR points and %d UC points\n", session.SessionID,
-		len(session.Records.FetalHeartRate.Time), len(session.Records.UterineContractions.Time))
+		len(session.Records.FetalHeartRate.TimeSec), len(session.Records.UterineContractions.TimeSec))
 	return &session, nil
 }
 

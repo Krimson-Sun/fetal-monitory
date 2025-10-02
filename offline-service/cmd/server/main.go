@@ -34,9 +34,8 @@ func main() {
 	log.Println("🚀 Using STUB repositories (Redis & PostgreSQL)")
 
 	// Инициализация gRPC клиентов (заглушки уже запущены отдельно)
-	filterConn, err := grpc.Dial(cfg.FilterServiceAddr,
+	filterConn, err := grpc.NewClient(cfg.FilterServiceAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithTimeout(30*time.Second),
 	)
 	if err != nil {
 		log.Printf("⚠️  Failed to connect to filter service: %v", err)
@@ -45,9 +44,8 @@ func main() {
 		defer filterConn.Close()
 	}
 
-	mlConn, err := grpc.Dial(cfg.MLServiceAddr,
+	mlConn, err := grpc.NewClient(cfg.MLServiceAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithTimeout(30*time.Second),
 	)
 	if err != nil {
 		log.Printf("⚠️  Failed to connect to ML service: %v", err)

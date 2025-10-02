@@ -69,6 +69,6 @@ func (r *PostgreSQLRepository) SaveMedicalData(ctx context.Context, session *mod
 	}
 
 	fmt.Printf("Session %s saved to PostgreSQL with %d FHR points and %d UC points\n", session.SessionID,
-		len(session.Records.FetalHeartRate.Time), len(session.Records.UterineContractions.Time))
+		len(session.Records.FetalHeartRate.TimeSec), len(session.Records.UterineContractions.TimeSec))
 	return nil
 }
