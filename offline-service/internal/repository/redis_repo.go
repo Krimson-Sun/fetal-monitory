@@ -64,3 +64,41 @@ func (r *RedisRepository) DeleteSession(ctx context.Context, sessionID string) e
 	fmt.Printf("Session %s deleted from Redis\n", sessionID)
 	return nil
 }
+
+func (r *RedisRepository) GetStats() map[string]interface{} {
+	ctx := context.Background()
+
+	// Получаем все ключи сессий
+	keys, err := r.client.Keys(ctx, "session:*").Result()
+	if err != nil {
+		return map[string]interface{}{
+			"active_sessions": 0,
+			"session_ids":     []string{},
+			"error":           err.Error(),
+		}
+	}
+
+	// Извлекаем только ID (убираем префикс "session:")
+	sessionIDs := make([]string, len(keys))
+	for i, key := range keys {
+		if len(key) > 7 { // "session:".length = 7
+			sessionIDs[i] = key[7:]
+		} else {
+			sessionIDs[i] = key
+		}
+	}
+
+	return map[string]interface{}{
+		"active_sessions": len(keys),
+		"session_ids":     sessionIDs,
+	}
+}
+
+func (r *RedisRepository) CheckConnection(ctx context.Context) error {
+	_, err := r.client.Ping(ctx).Result()
+	return err
+}
+
+func (r *RedisRepository) Close() error {
+	return r.client.Close()
+}

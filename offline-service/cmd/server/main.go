@@ -24,11 +24,31 @@ func main() {
 	// Загрузка конфигурации
 	cfg := config.LoadConfig()
 
-	// Инициализация заглушек вместо реальных репозиториев
-	redisRepo := repository.NewRedisStub(cfg.RedisTTL)
+	// Инициализация REAL Redis вместо заглушки
+	redisRepo := repository.NewRedisRepository(
+		cfg.RedisAddr,
+		cfg.RedisPassword,
+		cfg.RedisDB,
+		cfg.RedisTTL,
+	)
+
+	// Проверяем подключение к Redis
+	ctx := context.Background()
+	if err := redisRepo.CheckConnection(ctx); err != nil {
+		log.Printf("⚠️  Failed to connect to Redis: %v", err)
+		return
+	} else {
+		log.Println("✅ Connected to REAL Redis")
+	}
 	defer redisRepo.Close()
 
-	postgresRepo := repository.NewPostgresStub()
+	postgresRepo, err := repository.NewPostgreSQLRepository(cfg.PostgreSQLConnStr)
+	if err != nil {
+		log.Printf("⚠️  PostgreSQL unavailable: %v", err)
+		return
+	} else {
+		log.Println("✅ Connected to REAL PostgreSQL (save only)")
+	}
 	defer postgresRepo.Close()
 
 	log.Println("🚀 Using STUB repositories (Redis & PostgreSQL)")

@@ -217,10 +217,9 @@ func (s *MedicalService) HandleDecision(ctx context.Context, decision *models.Sa
 		return nil, fmt.Errorf("failed to get session data: %w", err)
 	}
 
-	// Сохраняем в PostgreSQL
-	if err := s.dbRepo.SaveMedicalRecord(ctx, session); err != nil {
-		fmt.Printf("Failed to save session %s to database: %v\n", decision.SessionID, err)
-		return nil, fmt.Errorf("failed to save to database: %w", err)
+	if err := s.dbRepo.SaveSession(ctx, session); err != nil {
+		log.Printf("Warning: failed to save to PostgreSQL: %v", err)
+		// Но продолжаем работу - данные есть в Redis
 	}
 
 	// Обновляем статус в Redis
