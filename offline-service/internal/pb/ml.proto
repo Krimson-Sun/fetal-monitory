@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package ml;
+option go_package = "./pb";
+
+import "common.proto";
+
+service MLService {
+  rpc Predict(PredictRequest) returns (PredictResponse);
+}
+
+message PredictRequest {
+  common.MedicalRecord medical_record = 1;
+  string session_id = 2;
+}
+
+message PredictResponse {
+  double prediction = 1;
+  string session_id = 2;
+  string status = 3;
+  string message = 4;
+}

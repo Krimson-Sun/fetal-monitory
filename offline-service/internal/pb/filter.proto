@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package filter;
+option go_package = "./pb";
+
+import "common.proto";
+
+service FilterService {
+  rpc FilterData(FilterRequest) returns (FilterResponse);
+}
+
+message FilterRequest {
+  common.MedicalRecord medical_record = 1;
+  string session_id = 2;
+}
+
+message Acceleration{
+  double start = 1;
+  double end = 2;
+  double duration = 3;
+  double amplitude = 4;
+}
+
+message Deceleration{
+  double start = 1;
+  double end = 2;
+  double duration = 3;
+  double amplitude = 4;
+  bool is_late = 5;
+}
+
+message Contraction{
+  double start = 1;
+  double end = 2;
+  double duration = 3;
+  double amplitude = 4;
+}
+
+message FilterResponse {
+  double stv = 1;
+  double ltv = 2;
+  double baseline_heart_rate = 3;
+  repeated Acceleration accelerations = 4;
+  repeated Deceleration decelerations = 5;
+  repeated Contraction contractions = 6;
+  repeated double stvs = 7;
+  double stvs_window_duration = 8;
+  repeated double ltvs = 9;
+  double ltvs_window_duration = 10;
+  int64 total_decelerations = 11;
+  int64 late_decelerations = 12;
+  double late_deceleration_ratio = 13;
+  int64 total_accelerations = 14;
+  double accel_decel_ratio = 15;
+  int64 total_contractions = 16;
+  double stv_trend = 17;
+  double bpm_trend = 18;
+  int64 data_points = 19;
+  double time_span_sec = 20;
+  common.MetricRecord filtered_bmp_batch = 21;
+  common.MetricRecord filtered_uterus_batch = 22;
+  string session_id = 23;
+  string status = 24;
+  string message = 25;
+}
