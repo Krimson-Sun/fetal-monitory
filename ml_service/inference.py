@@ -58,7 +58,7 @@ class ClassifierModel(nn.Module):
                 "time_span_sec"
             ]
 
-            pred_df = df.drop(columns=columns_to_drop, error="ignore")
+            pred_df = df.drop(columns=columns_to_drop, errors="ignore")
             return pred_df
 
         raise ValueError(f"{self.model_type} is not implemented yet")
