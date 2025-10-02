@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	httpSwagger "github.com/swaggo/http-swagger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -18,7 +19,29 @@ import (
 	"offline-service/internal/pb"
 	"offline-service/internal/repository"
 	"offline-service/internal/service"
+
+	_ "offline-service/docs" // Swagger docs
 )
+
+// @title Offline Medical Service API
+// @version 1.0
+// @description API для загрузки и анализа CSV файлов с медицинскими данными (FHR и UC)
+// @description
+// @description ## Описание
+// @description Этот сервис обрабатывает CSV файлы с данными о сердцебиении плода (BPM) и маточными сокращениями (UC).
+// @description Выполняет фильтрацию, анализ признаков и ML предсказание.
+// @description
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email support@fetalmonitory.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8081
+// @BasePath /
+// @schemes http
 
 func main() {
 	// Загрузка конфигурации
@@ -99,6 +122,16 @@ func main() {
 	mux.HandleFunc("/upload-dual", httpHandler.UploadDualCSV)
 	mux.HandleFunc("/decision", httpHandler.HandleDecision)
 	mux.HandleFunc("/session", httpHandler.GetSessionData) // Новый endpoint
+
+	// Swagger UI
+	mux.HandleFunc("/swagger/", func(w http.ResponseWriter, r *http.Request) {
+		httpSwagger.Handler(
+			httpSwagger.URL("/swagger/doc.json"),
+			httpSwagger.DeepLinking(true),
+			httpSwagger.DocExpansion("list"),
+			httpSwagger.DomID("swagger-ui"),
+		).ServeHTTP(w, r)
+	})
 
 	// Добавляем endpoint для отладки заглушек
 	mux.HandleFunc("/debug/stats", func(w http.ResponseWriter, r *http.Request) {

@@ -3,10 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 	"offline-service/internal/service"
 	"offline-service/pkg/models"
+
+	"github.com/google/uuid"
 )
 
 type HTTPHandler struct {
@@ -19,6 +20,19 @@ func NewHTTPHandler(medicalService *service.MedicalService) *HTTPHandler {
 	}
 }
 
+// UploadDualCSV загружает и обрабатывает CSV файлы с FHR и UC данными
+// @Summary Загрузить CSV файлы для анализа
+// @Description Загружает два CSV файла (BPM и UC), выполняет фильтрацию, извлечение признаков и ML предсказание
+// @Tags Offline Analysis
+// @Accept multipart/form-data
+// @Produce json
+// @Param bpm_file formData file true "CSV файл с данными FHR (сердцебиение плода)"
+// @Param uc_file formData file true "CSV файл с данными UC (маточные сокращения)"
+// @Param session_id formData string false "ID сессии (генерируется автоматически если не указан)"
+// @Success 200 {object} models.UploadResponse "Результат анализа"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 500 {object} map[string]string "Ошибка обработки"
+// @Router /upload [post]
 func (h *HTTPHandler) UploadDualCSV(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
@@ -74,6 +88,17 @@ func (h *HTTPHandler) UploadDualCSV(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// HandleDecision обрабатывает решение о сохранении данных сессии
+// @Summary Принять решение о сохранении
+// @Description Сохраняет или отклоняет сохранение данных сессии в базу данных
+// @Tags Offline Analysis
+// @Accept json
+// @Produce json
+// @Param request body models.SaveDecision true "Решение о сохранении"
+// @Success 200 {object} models.DecisionResponse "Результат операции"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 500 {object} map[string]string "Ошибка обработки"
+// @Router /decision [post]
 func (h *HTTPHandler) HandleDecision(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
@@ -121,7 +146,15 @@ func (h *HTTPHandler) HandleDecision(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// Новый endpoint для получения данных сессии
+// GetSessionData получает данные сессии
+// @Summary Получить данные сессии
+// @Description Возвращает информацию о сессии (пока заглушка, нужно использовать /upload для получения данных)
+// @Tags Offline Analysis
+// @Produce json
+// @Param session_id query string true "ID сессии"
+// @Success 200 {object} map[string]interface{} "Информация о сессии"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Router /session [get]
 func (h *HTTPHandler) GetSessionData(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)

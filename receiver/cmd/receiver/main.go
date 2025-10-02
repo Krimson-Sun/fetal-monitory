@@ -13,6 +13,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/redis/go-redis/v9"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
@@ -24,7 +25,31 @@ import (
 	"github.com/Krimson/fetal-monitory/receiver/internal/server"
 	"github.com/Krimson/fetal-monitory/receiver/internal/session"
 	"github.com/Krimson/fetal-monitory/receiver/internal/websocket"
+
+	_ "github.com/Krimson/fetal-monitory/receiver/docs" // Swagger docs
 )
+
+// @title Fetal Monitoring API
+// @version 1.0
+// @description API для системы мониторинга плода в реальном времени
+// @description
+// @description ## Описание
+// @description Этот API предоставляет endpoints для управления сессиями мониторинга, получения метрик и real-time данных через WebSocket.
+// @description
+// @description ## WebSocket
+// @description Подключение: `ws://localhost:8080/ws?session_id={session_id}`
+// @description
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email support@fetalmonitory.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+// @schemes http ws
 
 func main() {
 	log.Printf("[INFO] Starting receiver server...")
@@ -116,6 +141,14 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
+
+	// Swagger UI
+	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+		httpSwagger.DeepLinking(true),
+		httpSwagger.DocExpansion("list"),
+		httpSwagger.DomID("swagger-ui"),
+	))
 
 	// Session management API
 	sessionHandler := session.NewHTTPHandler(sessionManager)
