@@ -169,8 +169,10 @@ docker-compose up --build
 - Data Receiver (порт 50051, 8080)
 - Offline Service (порт 8081)
 - Stream Emulator (автоматически начнет отправку данных)
+- frontend (порт 3000)
 
 3. **Откройте в браузере**
+- Интерфейс: `http://localhost:3000`
 - WebSocket соединение: `ws://localhost:8080/ws?session_id=<your-session-id>`
 - Swagger UI (Data Receiver): http://localhost:8080/swagger/
 - Swagger UI (Offline Service): http://localhost:8081/swagger/
