@@ -72,8 +72,6 @@ if __name__ == "__main__":
     model = ClassifierModel(
         "catboost", "/home/be2r/hackathons/fetal-monitory/weights"
     )
-    breakpoint()
-    X_test = pd.read_csv('x_test.csv')
-    y_test = pd.read_csv('y.csv')
+    X_test = pd.read_csv('x_test.csv') # пример
+    y_test = pd.read_csv('y.csv') # пример
     preds = model.predict_ensemble_proba(X_test)
-    breakpoint()

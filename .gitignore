@@ -3,4 +3,3 @@ data
 *.gif
 __pycache__
 large_data
-weights
