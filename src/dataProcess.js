@@ -272,6 +272,23 @@ export function resetCharts(){
           }
         }
       });
+
+      updateMetric('baseline', 0, ()=>null)
+      updateMetric('stv', 0, ()=>null)
+      updateMetric('ltv', 0, ()=>null)
+      updateMetric('late-decel', 0, ()=>null)
+      updateMetric('accelerations-rate', 0, ()=>null)
+      updateMetric('mean-contractions-amplitude', 0, ()=>null)
+      
+      document.getElementById('accelerations-value').textContent = '-';
+      document.getElementById('decelerations-value').textContent = '-';
+      document.getElementById('contractions-value').textContent = '-';
+
+      document.getElementById('forecast-value').textContent = '';
+      document.getElementById('forecast-value').className = `forecast-value forecast-gray`;
+      document.getElementById('status-badge').className = '';
+      document.getElementById('status-badge').textContent = ''
+      
 }
 
 export function updateData(initDate) {
@@ -334,10 +351,10 @@ export function updateData(initDate) {
     document.getElementById('accelerations-value').textContent = accelerations;
 
     // Обновление статуса метрик
-    updateMetricStatus('stv', stv);
-    updateMetricStatus('ltv', ltv);
-    updateMetricStatus('late-decel', lateDecel);
-    updateMetricStatus('accelerations', accelerations);
+    // updateMetricStatus('stv', stv);
+    // updateMetricStatus('ltv', ltv);
+    // updateMetricStatus('late-decel', lateDecel);
+    // updateMetricStatus('accelerations', accelerations);
 
     // Обновление прогноза
     const forecast = Math.random() * 20;
@@ -451,9 +468,9 @@ export function setDataToCharts(data){
   updateMetric('baseline', baseline, Math.round)
   updateMetric('stv', stv, (value)=>value == 0? null:value.toFixed(1))
   updateMetric('ltv', ltv, (value)=>value == 0? null:value.toFixed(1))
-  updateMetric('late-decel-value', lateDecel, (value)=> d['total_decelerations'] == 0? null:`${value.toFixed(1)}%`)
+  updateMetric('late-decel', lateDecel, (value)=> d['total_decelerations'] == 0? null:`${value.toFixed(1)}%`)
   updateMetric('accelerations-rate', (d['total_accelerations']*60000 / (max_time-min_time)).toFixed(0))
-  updateMetric('mean-contractions', meanContAmplitude, (value)=>value.toFixed(0))
+  updateMetric('mean-contractions-amplitude', meanContAmplitude, (value)=>value.toFixed(0))
   
   document.getElementById('accelerations-value').textContent = d['total_accelerations'];
   document.getElementById('decelerations-value').textContent = d['total_decelerations'];
@@ -465,11 +482,6 @@ export function setDataToCharts(data){
   document.getElementById('status-badge').className = `status-badge status-${predictionStatus}`;
   document.getElementById('status-badge').textContent = 
       predictionStatus == 'green'?'Все в порядке':predictionStatus == 'yellow'? 'Требуется внимание':'Риск осложнений';
-  // // Обновление статуса метрик
-  // updateMetricStatus('stv', stv);
-  // updateMetricStatus('ltv', ltv);
-  // updateMetricStatus('late-decel', lateDecel);
-  // updateMetricStatus('accelerations', accelerations);
 
   uterineChart.update()
   hrChart.update()
